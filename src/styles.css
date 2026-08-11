@@ -1,1 +1,18 @@
-/* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+@plugin "daisyui";
+
+/* Configuramos el fondo color hueso/crema muy suave para toda la app */
+body {
+  @apply bg-stone-50 text-slate-800 font-sans antialiased;
+}
+
+/* Oculta el ícono nativo de "mostrar contraseña" en Edge/Chrome, 
+   ya que tenemos nuestro propio botón MOSTRAR/OCULTAR */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
+input[type="password"]::-webkit-credentials-auto-fill-button {
+  display: none !important;
+}

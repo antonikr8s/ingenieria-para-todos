@@ -1,0 +1,310 @@
+<section class="py-12 px-4 max-w-3xl mx-auto w-full">
+
+  <div class="mb-8 text-center">
+    <h1 class="text-3xl font-extrabold text-blue-600 tracking-tight">
+      Sugerir un Ejercicio
+    </h1>
+
+    <p class="text-black mt-2">
+      ¿No encuentras el ejercicio de David C. Lay que buscas?
+      Pídelo y lo resolveremos paso a paso.
+    </p>
+
+
+
+    <div class="mt-5 bg-blue-50 border border-blue-200 rounded-xl p-4 text-left text-sm text-blue-900">
+
+      <p class="font-semibold mb-1">
+        Sobre las solicitudes
+      </p>
+
+      <p>
+        Para poder resolver cada ejercicio con el detalle necesario,
+        cada usuario podrá enviar una nueva solicitud después de 14 días.
+        Gracias por tu comprensión y paciencia.
+      </p>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="card bg-white shadow-md border border-stone-200">
+
+    <div class="card-body p-6 md:p-8">
+
+
+      @if (verificandoDisponibilidad()) {
+
+      <div class="flex flex-col items-center justify-center py-10">
+        <span class="loading loading-spinner loading-lg text-blue-600"></span>
+        <p class="mt-4 text-stone-600 font-medium">Verificando tu cuenta...</p>
+      </div>
+
+      } @else if (!puedeSugerir()) {
+
+      <div
+        class="alert alert-warning bg-orange-50 text-orange-900 border-orange-200 py-6 flex flex-col items-center text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-10 w-10 mb-2" fill="none"
+          viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <span class="text-lg font-bold">Límite alcanzado</span>
+        <span class="mt-1">
+          Ya has enviado una solicitud recientemente. Podrás enviar un nuevo ejercicio el
+          <strong>{{ fechaDisponible() | date:"d 'de' MMMM 'a las' HH:mm" }}</strong>.
+        </span>
+      </div>
+
+      } @else {
+
+
+      @if (mensajeExito()) {
+
+      <div class="alert alert-success bg-green-50 text-green-800 border-green-200 mb-6">
+
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+
+        </svg>
+
+        <span>
+          ¡Sugerencia enviada correctamente!
+          Revisaremos el ejercicio y te notificaremos cuando esté resuelto.
+        </span>
+
+      </div>
+
+      }
+
+
+      <form [formGroup]="sugerenciaForm" (ngSubmit)="enviarSugerencia()" class="space-y-5">
+
+
+        <!-- Nombre y correo -->
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+
+          <div class="form-control">
+
+            <label class="label">
+              <span class="label-text font-semibold text-stone-700">
+                Tu Nombre
+              </span>
+            </label>
+
+
+            <input type="text" formControlName="nombre" placeholder="Ej. Carlos Gordillo"
+              class="input input-bordered bg-stone-50 w-full">
+
+
+            @if(nombre.invalid && nombre.touched){
+
+            <label class="label">
+              <span class="label-text-alt text-red-500">
+                El nombre es obligatorio.
+              </span>
+            </label>
+
+            }
+
+          </div>
+
+
+
+          <div class="form-control">
+
+            <label class="label">
+              <span class="label-text font-semibold text-stone-700">
+                Correo Electrónico
+              </span>
+            </label>
+
+
+            <input type="email" formControlName="correo" placeholder="correo@ejemplo.com"
+              class="input input-bordered bg-stone-50 w-full">
+
+
+            @if(correo.invalid && correo.touched){
+
+            <label class="label">
+              <span class="label-text-alt text-red-500">
+                Ingresa un correo válido.
+              </span>
+            </label>
+
+            }
+
+
+          </div>
+
+
+        </div>
+
+
+
+        <!-- Capítulo -->
+
+        <div class="form-control">
+
+          <label class="label">
+
+            <span class="label-text font-semibold text-stone-700">
+              Capítulo del Libro
+            </span>
+
+          </label>
+
+
+          <select formControlName="capitulo" class="select select-bordered bg-stone-50 w-full">
+
+
+            <option value="1">
+              Capítulo 1: Ecuaciones Lineales
+            </option>
+
+
+            <option value="2">
+              Capítulo 2: Álgebra de Matrices
+            </option>
+
+
+            <option value="3">
+              Capítulo 3: Determinantes
+            </option>
+
+
+            <option value="4">
+              No estoy seguro
+            </option>
+
+
+          </select>
+
+        </div>
+
+
+
+        <!-- Descripción -->
+
+        <div class="form-control">
+
+
+          <label class="label">
+
+            <span class="label-text font-semibold text-stone-700">
+              Detalles del Ejercicio
+            </span>
+
+          </label>
+
+
+
+          <textarea formControlName="descripcion" rows="4"
+            placeholder="Ej. Este ejercicio me lo enviaron como tarea de un taller con el ayudante de cátedra y no aparece en el libro de David C. Lay..."
+            class="textarea textarea-bordered bg-stone-50 w-full text-base">
+          </textarea>
+
+
+
+          @if(descripcion.invalid && descripcion.touched){
+
+          <label class="label">
+
+            <span class="label-text-alt text-red-500">
+              Proporciona más detalles del ejercicio.
+            </span>
+
+          </label>
+
+          }
+
+
+        </div>
+
+
+
+        <!-- NUEVO CAMPO IMAGEN -->
+
+        <div class="mt-4 mb-6">
+
+
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Foto del Ejercicio <span class="text-red-500">*</span>
+          </label>
+
+
+          <input type="file" accept="image/png, image/jpeg, image/jpg" (change)="onFileSelected($event)"
+            class="file-input file-input-bordered w-full max-w-xs" [class.border-red-400]="errorFoto()">
+
+
+          <p class="text-xs text-gray-500 mt-1">
+            Formatos permitidos: JPG, PNG. Tamaño máximo recomendado: 10 MB.
+          </p>
+
+
+          @if(imagenNombre()){
+
+          <p class="text-xs text-blue-600 mt-2">
+            Archivo seleccionado: {{imagenNombre()}}
+          </p>
+
+          }
+
+          @if(errorFoto()){
+
+          <p class="text-xs text-red-500 mt-2 font-medium">
+            Debes adjuntar una foto del ejercicio para poder enviarlo.
+          </p>
+
+          }
+
+
+        </div>
+
+
+
+        <!-- Botón -->
+
+        <div class="form-control mt-6">
+
+
+          <button type="submit" class="btn bg-blue-600 hover:bg-blue-700 text-white border-none shadow-md"
+            [disabled]="enviando()">
+
+
+
+            @if(enviando()){
+
+            <span class="loading loading-spinner"></span>
+            Enviando...
+
+
+            } @else {
+
+            Enviar Sugerencia
+
+            }
+
+
+          </button>
+
+
+        </div>
+
+
+      </form>
+
+      }
+
+    </div>
+
+  </div>
+
+
+</section>

@@ -1,0 +1,125 @@
+<div class="w-full min-h-[calc(100vh-140px)] flex flex-col items-center justify-center px-4 py-8 bg-stone-50">
+    <section class="w-full max-w-md space-y-8">
+
+        <header class="space-y-3 text-center">
+            <h1 class="text-3xl font-bold tracking-tight text-blue-600 md:text-4xl">
+                Ruta interna: Crear cuenta de prueba
+            </h1>
+
+            <p class="leading-7 text-black text-base">
+                Solo para pruebas internas del desarrollador.
+            </p>
+
+        </header>
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()"
+            class="space-y-5 bg-white p-8 rounded-2xl border border-stone-200 shadow-sm">
+
+            <div class="space-y-2 text-left">
+                <label for="email" class="block text-sm font-semibold text-stone-700">
+                    Correo electrónico
+                </label>
+
+                <input id="email" type="email"
+                    class="w-full rounded-lg border border-stone-300 bg-stone-50 px-4 py-3 text-stone-800 placeholder-stone-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all"
+                    placeholder="Ej: test@est.ups.edu.ec" formControlName="email">
+
+                @if(email.touched && email.hasError('required')){
+                <p class="text-xs text-red-500 mt-1">
+                    Es obligatorio escribir un correo electrónico.
+                </p>
+                }
+
+                @if(email.touched && email.hasError('pattern')){
+                <p class="text-xs text-red-500 mt-1">
+                    Utilice un correo de Gmail, Hotmail, Outlook o el correo institucional de su universidad
+                    (micorreo@universidad.edu.ec).
+                </p>
+                }
+
+                @if(email.status === 'PENDING'){
+                <p class="text-xs text-blue-600 mt-1 animate-pulse">
+                    Comprobando disponibilidad del correo...
+                </p>
+                }
+
+                @if(email.touched && email.hasError('emailTaken')){
+                <p class="text-xs text-red-500 mt-1">
+                    Este correo ya está registrado en nuestro sistema.
+                </p>
+                }
+            </div>
+
+            <div class="space-y-2 text-left">
+                <label for="password" class="block text-sm font-semibold text-stone-700">
+                    Contraseña (mínimo 8 caracteres, una mayúscula, una minúscula y un número)
+                </label>
+
+                <div class="relative">
+                    <input id="password" [type]="showPassword() ? 'text' : 'password'"
+                        class="w-full rounded-lg border border-stone-300 bg-stone-50 py-3 pl-4 pr-16 text-stone-800 placeholder-stone-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all"
+                        placeholder="Escriba su contraseña..." formControlName="password">
+
+                    <button type="button" (click)="togglePassword()" tabindex="-1"
+                        class="absolute inset-y-0 right-0 flex items-center pr-4 text-xs font-mono tracking-wider text-blue-600 font-bold">
+                        @if (showPassword()) { OCULTAR } @else { MOSTRAR }
+                    </button>
+                </div>
+
+                @if(password.touched && password.hasError('required')){
+                <p class="text-xs text-red-500 mt-1">
+                    La contraseña es obligatoria.
+                </p>
+                } @else if(password.touched && password.hasError('minlength')){
+                <p class="text-xs text-red-500 mt-1">
+                    La contraseña debe tener al menos 8 caracteres.
+                </p>
+                } @else if(password.touched && password.hasError('pattern')){
+                <p class="text-xs text-red-500 mt-1">
+                    La contraseña debe incluir al menos una mayúscula, una minúscula y un número.
+                </p>
+                }
+            </div>
+
+            <div class="space-y-2 text-left">
+                <label for="confirmPassword" class="block text-sm font-semibold text-stone-700">
+                    Confirmar Contraseña
+                </label>
+                <div class="relative">
+                    <input id="confirmPassword" [type]="showConfirmPassword() ? 'text' : 'password'"
+                        class="w-full rounded-lg border border-stone-300 bg-stone-50 py-3 pl-4 pr-16 text-stone-800 placeholder-stone-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all"
+                        placeholder="Repita su contraseña..." formControlName="confirmPassword">
+
+                    <button type="button" (click)="toggleConfirmPassword()" tabindex="-1"
+                        class="absolute inset-y-0 right-0 flex items-center pr-4 text-xs font-mono tracking-wider text-blue-600 font-bold">
+                        @if (showConfirmPassword()) { OCULTAR } @else { MOSTRAR }
+                    </button>
+                </div>
+
+                @if (form.hasError('passwordMismatch') && confirmPassword.touched) {
+                <p class="text-xs text-red-500 mt-1">¡Las dos contraseñas no coinciden!</p>
+                }
+            </div>
+
+            <button type="submit" [disabled]="form.invalid || form.status === 'PENDING' || cargando()"
+                class="mt-4 w-full rounded-lg bg-blue-600 px-4 py-4 font-bold tracking-widest uppercase text-white transition-all hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-200 disabled:bg-stone-200 disabled:text-stone-400 disabled:shadow-none disabled:cursor-not-allowed text-base">
+                @if (cargando()) {
+                Registrando sus datos... Por favor espere
+                } @else {
+                Crear mi Cuenta
+                }
+            </button>
+
+            <div class="pt-4 text-center border-t border-stone-200 mt-6 space-y-2">
+                <p class="text-sm text-stone-500">
+                    ¿Ya tienes una cuenta de prueba?
+                </p>
+                <a routerLink="/iniciar-cuenta"
+                    class="block text-blue-600 hover:text-blue-800 transition-colors font-bold text-sm">
+                    Presione aquí para ingresar con sus datos
+                </a>
+            </div>
+
+        </form>
+    </section>
+</div>

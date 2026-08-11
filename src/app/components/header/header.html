@@ -1,0 +1,174 @@
+<nav class="flex items-center justify-between px-8 h-16 border-b border-slate-200 bg-white shadow-sm sticky top-0 z-50">
+
+  <!-- Marca -->
+  <a routerLink="/" class="font-mono text-lg font-bold tracking-widest text-slate-800 cursor-pointer">
+    INGENIERÍA<span class="text-blue-600"> PARA TODOS</span>
+  </a>
+
+  <!-- Menú Escritorio -->
+  <ul class="hidden md:flex items-center gap-8 list-none m-0 p-0">
+
+    <!-- Temario -->
+    <li>
+      <a routerLink="/" routerLinkActive="border-b-2 border-blue-500 text-blue-600"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="text-sm font-semibold text-stone-600 hover:text-blue-600 pb-1 transition-colors">
+        Temario
+      </a>
+    </li>
+
+    <!-- Vista del Estudiante -->
+    @if (auth.isLoggedIn() && !auth.isAdmin()) {
+
+    <li>
+      <a routerLink="/sugerir-ejercicio" routerLinkActive="border-b-2 border-blue-500 text-blue-600"
+        class="text-sm font-semibold text-stone-600 hover:text-blue-600 pb-1 transition-colors">
+        Sugerir Ejercicio
+      </a>
+    </li>
+
+    <li>
+      <a routerLink="/mis-solicitudes" routerLinkActive="border-b-2 border-blue-500 text-blue-600"
+        class="text-sm font-semibold text-stone-600 hover:text-blue-600 pb-1 transition-colors">
+        Mis Solicitudes
+
+        <!-- Notificación Estudiante -->
+        @if (mensajesNuevosCliente() > 0) {
+        <span
+          class="absolute -top-3 -right-4 bg-red-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full animate-bounce pointer-events-none">
+          {{ mensajesNuevosCliente() }}
+        </span>
+        }
+
+      </a>
+    </li>
+
+    }
+
+    <!-- Vista del Administrador (Tú) -->
+    @if (auth.isAdmin()) {
+    <li>
+      <a routerLink="/panel" routerLinkActive="border-b-2 border-blue-500 text-blue-600"
+        class="text-sm font-semibold text-blue-700 hover:text-blue-800 transition-colors font-bold relative flex items-center w-max bg-blue-50 px-3 py-1 rounded-lg">
+
+        Dashboard Tutor
+
+        <!-- Notificación Tutor -->
+        @if (mensajesNuevosProgramador() > 0) {
+        <span
+          class="absolute -top-2 -right-3 bg-amber-500 text-slate-900 text-[10px] font-black px-1.5 py-0.5 rounded-full shadow-sm animate-pulse pointer-events-none">
+          {{ mensajesNuevosProgramador() }}
+        </span>
+        }
+
+      </a>
+    </li>
+    }
+
+  </ul>
+
+  <!-- Botones de Acción (Login / Perfil) y Hamburguesa -->
+  <div class="flex items-center gap-5">
+
+    @if (!auth.isLoggedIn()) {
+    <a routerLink="/login"
+      class="hidden md:inline-block bg-blue-600 text-white text-xs font-bold tracking-wider uppercase px-5 py-2.5 rounded-lg transition-all cursor-pointer hover:bg-blue-700 shadow-sm">
+      Iniciar Sesión
+    </a>
+    }
+
+    @if (auth.isLoggedIn()) {
+    <div class="flex items-center gap-4">
+
+      <span class="text-sm font-medium text-slate-600 hidden md:block">
+        {{ auth.currentUser()?.email }}
+      </span>
+
+      <button (click)="auth.logout()"
+        class="hidden md:inline-block bg-red-50 text-red-600 border border-red-200 text-[10px] font-bold tracking-widest uppercase px-4 py-1.5 rounded-full cursor-pointer transition-all hover:bg-red-100 hover:border-red-300">
+        Salir
+      </button>
+
+    </div>
+    }
+
+    <!-- NUEVO: Botón Hamburguesa Mobile (Oculto en Desktop) -->
+    <button class="btn btn-square btn-ghost text-slate-800 md:hidden" (click)="toggleMenu()">
+      @if (!isMobileMenuOpen()) {
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+        class="inline-block w-6 h-6 stroke-current">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+      } @else {
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+        class="inline-block w-6 h-6 stroke-current">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+      }
+    </button>
+
+  </div>
+
+</nav>
+
+<!-- NUEVO: Menú Desplegable Mobile -->
+@if (isMobileMenuOpen()) {
+<div
+  class="md:hidden bg-white text-slate-800 px-4 pt-2 pb-6 space-y-2 shadow-2xl absolute w-full z-40 border-t border-slate-100">
+
+  <a routerLink="/" (click)="closeMenu()" routerLinkActive="bg-blue-50 text-blue-600 font-bold"
+    [routerLinkActiveOptions]="{exact: true}"
+    class="block px-4 py-3 hover:bg-slate-50 rounded-lg font-medium transition-colors">
+    Temario
+  </a>
+
+  <!-- Vista del Estudiante Mobile -->
+  @if (auth.isLoggedIn() && !auth.isAdmin()) {
+  <a routerLink="/sugerir-ejercicio" (click)="closeMenu()" routerLinkActive="bg-blue-50 text-blue-600 font-bold"
+    class="block px-4 py-3 hover:bg-slate-50 rounded-lg font-medium transition-colors">
+    Sugerir Ejercicio
+  </a>
+
+  <a routerLink="/mis-solicitudes" (click)="closeMenu()" routerLinkActive="bg-blue-50 text-blue-600 font-bold"
+    class="block px-4 py-3 hover:bg-slate-50 rounded-lg font-medium transition-colors flex justify-between items-center">
+    Mis Solicitudes
+    @if (mensajesNuevosCliente() > 0) {
+    <span class="bg-red-500 text-white text-xs font-black px-2 py-0.5 rounded-full">
+      {{ mensajesNuevosCliente() }}
+    </span>
+    }
+  </a>
+  }
+
+  <!-- Vista del Administrador Mobile -->
+  @if (auth.isAdmin()) {
+  <a routerLink="/panel" (click)="closeMenu()" routerLinkActive="bg-blue-100 text-blue-700 font-bold"
+    class="block px-4 py-3 bg-blue-50 hover:bg-blue-100 rounded-lg font-medium transition-colors flex justify-between items-center text-blue-800">
+    Dashboard Tutor
+    @if (mensajesNuevosProgramador() > 0) {
+    <span class="bg-amber-500 text-slate-900 text-xs font-black px-2 py-0.5 rounded-full">
+      {{ mensajesNuevosProgramador() }}
+    </span>
+    }
+  </a>
+  }
+
+  <!-- Botones de Acción Mobile -->
+  <div class="divider my-2"></div>
+
+  @if (!auth.isLoggedIn()) {
+  <a routerLink="/login" (click)="closeMenu()"
+    class="block px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-center font-bold shadow-md transition-colors uppercase">
+    Iniciar Sesión
+  </a>
+  } @else {
+  <div class="px-4 py-2 mb-2 text-sm text-slate-500 font-medium text-center">
+    {{ auth.currentUser()?.email }}
+  </div>
+  <button (click)="auth.logout(); closeMenu()"
+    class="w-full block px-4 py-3 border border-red-200 text-red-600 hover:bg-red-50 rounded-lg text-center font-bold transition-colors uppercase">
+    Salir
+  </button>
+  }
+</div>
+}

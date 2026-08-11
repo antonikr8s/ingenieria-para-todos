@@ -1,0 +1,58 @@
+<!-- Hero Section -->
+<section class="bg-stone-50 text-stone-800 py-20 border-b border-stone-200">
+  <div class="container mx-auto px-4 text-center">
+    <h1 class="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight">
+      Domina el <span class="text-blue-600">Álgebra Lineal</span>
+    </h1>
+    <p class="text-lg md:text-xl text-stone-600 mb-8 max-w-2xl mx-auto">
+      Ejercicios resueltos paso a paso basados en el libro de David C. Lay. Una plataforma diseñada para estudiantes de ingeniería.
+    </p>
+    <!-- Botón actualizado -->
+    <button [routerLink]="['/capitulo', 1]" class="btn btn-primary bg-blue-600 hover:bg-blue-700 text-white border-none text-lg px-8 rounded-full shadow-lg hover:shadow-blue-200 transition-all">
+      Empezar a estudiar
+    </button>
+  </div>
+</section>
+
+<!-- Temario Section -->
+<section class="py-16 bg-white">
+  <div class="container mx-auto px-4 max-w-6xl">
+    <h2 class="text-3xl font-bold text-center text-stone-800 mb-12">Temario del Curso</h2>
+    
+    <!-- CSS Grid para las tarjetas (responsivo) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      
+      <!-- Usamos la nueva sintaxis de control de flujo de Angular (@for) -->
+      @for (capitulo of capitulos; track capitulo.id) {
+        <div class="card bg-stone-50 shadow-sm hover:shadow-md transition-shadow border-t-4 {{capitulo.color}}">
+          <div class="card-body p-6">
+            <h3 class="text-sm font-semibold text-blue-600 tracking-wider uppercase mb-1">Capítulo {{capitulo.id}}</h3>
+            <h4 class="card-title text-stone-800 text-lg mb-2">{{capitulo.titulo}}</h4>
+            <p class="text-stone-500 text-sm leading-relaxed flex-grow">{{capitulo.descripcion}}</p>
+            
+            <div class="card-actions justify-end mt-6">
+              <!-- Botón actualizado -->
+              <button [routerLink]="['/capitulo', capitulo.id]" class="btn btn-sm btn-outline text-blue-600 border-blue-600 hover:bg-blue-600 hover:text-white hover:border-blue-600">
+                Ver ejercicios
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+    </div>
+  </div>
+</section>
+
+<!-- Recursos Descargables -->
+<section class="py-8 bg-blue-50 border-b border-blue-100">
+  <div class="container mx-auto px-4 max-w-6xl">
+    <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+      <div>
+        <p class="font-bold text-blue-900 text-lg">Recursos descargables</p>
+        <!-- <p class="text-blue-700 text-sm">Repasa cada capítulo con material de apoyo elaborado por el docente.</p> -->
+      </div>
+      <a href="https://drive.google.com/drive/folders/1vX5lOC2twsJfq75Jlv5opP6oONV2MAZ3?usp=sharing" target="_blank" rel="noopener noreferrer" class="btn bg-blue-600 hover:bg-blue-700 text-white border-none shadow-sm shrink-0">Descarga los recursos aquí</a>
+    </div>
+  </div>
+</section>
