@@ -167,3 +167,14 @@ El proyecto estará disponible en `http://localhost:4200/`.
 **Descripción:** Entorno de gestión exclusivo para el tutor. Permite visualizar las métricas generales y filtrar las solicitudes (Todas, Pendientes, Respondidas). Incluye alertas visuales en la navegación para mantener al administrador al tanto de los ejercicios que aún requieren respuesta.
 ![](./assets/08-dashboard.png)
 
+### Acceso Interno de Administrador (`/internal-login`)
+**Descripción:** Ruta interna y no visible en la interfaz pública. Solo es accesible ingresando manualmente la URL en el navegador. Permite al administrador autenticarse mediante correo electrónico y contraseña utilizando credenciales fijas de prueba. No se expone ningún formulario de registro público que permita crear cuentas con correos falsos.
+
+Una vez autenticado, la barra de navegación se actualiza para mostrar las opciones exclusivas del administrador: **"Dashboard Tutor"** y **"Crear cuentas"**.
+![](./assets/09-Acceso-interno.png)
+
+### Creación de Cuentas Internas (`/internal-signup`)
+**Descripción:** Ruta protegida exclusivamente para administradores autenticados mediante `adminGuard`. La opción para acceder a esta página aparece en la barra de navegación únicamente cuando existe una sesión activa de administrador.
+
+Permite crear cuentas de prueba para el desarrollo y cuentas adicionales de administrador destinadas a colaboradores que ayuden a responder las solicitudes de los estudiantes. Esta funcionalidad no es pública: los estudiantes no pueden visualizar ni acceder al formulario, ya que requiere una sesión activa de administrador.
+![](./assets/10-creacion-cuentas.png)
