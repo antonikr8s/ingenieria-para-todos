@@ -19,6 +19,24 @@ export const routes: Routes = [
     title: 'Ingeniería para Todos - Inicio'
   },
   {
+    path: 'login',
+    component: LoginPage,
+    canActivate: [guestGuard],
+    title: 'Iniciar Sesión | Ingeniería para Todos'
+  },
+  {
+    path: 'internal-signup',
+    component: CrearCuentaPage,
+    canActivate: [adminGuard],
+    title: 'Ingeniería para Todos'
+  },
+  {
+    path: 'internal-login',
+    component: IniciarCuentaPage,
+    canActivate: [guestGuard],
+    title: 'Ingeniería para Todos'
+  },
+  {
     path: 'sugerir-ejercicio',
     component: SugerirEjercicioPage,
     canActivate: [authGuard],
@@ -35,26 +53,6 @@ export const routes: Routes = [
     component: PanelPage,
     canActivate: [adminGuard],
     title: 'Panel de Administración | Ingeniería para Todos'
-  },
-  {
-    path: 'login',
-    component: LoginPage,
-    canActivate: [guestGuard],
-    title: 'Iniciar Sesión | Ingeniería para Todos'
-  },
-  {
-    path: 'crear-cuenta',
-    component: CrearCuentaPage,
-    title: 'Ingeniería para Todos'
-  },
-  {
-    path: 'iniciar-cuenta',
-    component: IniciarCuentaPage,
-    title: 'Ingeniería para Todos'
-  },
-  {
-    path: 'registro',
-    redirectTo: 'login'
   },
   {
     path: 'capitulo/:id',

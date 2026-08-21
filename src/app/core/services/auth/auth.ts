@@ -1,12 +1,11 @@
 import { Injectable, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { 
-  Auth as FirebaseAuth, 
+import {
+  Auth as FirebaseAuth,
   GoogleAuthProvider,
-  FacebookAuthProvider,
   OAuthProvider,
-  signInWithPopup, 
-  signOut, 
+  signInWithPopup,
+  signOut,
   authState,
   User,
   createUserWithEmailAndPassword,
@@ -19,9 +18,9 @@ import { toSignal } from '@angular/core/rxjs-interop';
 })
 export class Auth {
   private router = inject(Router);
-  private firebaseAuth = inject(FirebaseAuth); 
+  private firebaseAuth = inject(FirebaseAuth);
 
-    private adminEmails = [
+  private adminEmails = [
     'antoniogordillo.1808@gmail.com',
     'admin.test@ucuenca.edu.ec'
   ];
@@ -50,11 +49,6 @@ export class Auth {
   loginWithGoogle() {
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
-    return signInWithPopup(this.firebaseAuth, provider);
-  }
-
-  loginWithFacebook() {
-    const provider = new FacebookAuthProvider();
     return signInWithPopup(this.firebaseAuth, provider);
   }
 

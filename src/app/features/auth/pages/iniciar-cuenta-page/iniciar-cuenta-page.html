@@ -3,8 +3,11 @@
 
         <header class="space-y-3 text-center">
             <h1 class="text-3xl font-bold tracking-tight text-blue-600 md:text-4xl">
-                Ruta interna: Iniciar con cuenta de prueba
+                Acceso restringido
             </h1>
+            <p class="text-base text-stone-800">
+                Ingresa las credenciales de administrador para continuar
+            </p>
         </header>
 
         <form [formGroup]="form" (ngSubmit)="onSubmit()"
@@ -36,9 +39,9 @@
             </div>
 
             @if (errorMessage()) {
-              <div class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
+            <div class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
                 {{ errorMessage() }}
-              </div>
+            </div>
             }
 
             <button type="submit" [disabled]="form.invalid || cargando()"
@@ -47,8 +50,9 @@
             </button>
 
             <div class="pt-4 text-center border-t border-stone-200 mt-6">
-                <a routerLink="/crear-cuenta" class="text-blue-600 hover:text-blue-800 transition-colors font-semibold text-sm">
-                    ¿No tienes cuenta de prueba? Créala aquí
+                <a routerLink="/login"
+                    class="text-blue-600 hover:text-blue-800 transition-colors font-semibold text-sm">
+                    ¿Eres estudiante? Inicia sesión aquí
                 </a>
             </div>
 

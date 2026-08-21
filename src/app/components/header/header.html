@@ -50,17 +50,20 @@
     <li>
       <a routerLink="/panel" routerLinkActive="border-b-2 border-blue-500 text-blue-600"
         class="text-sm font-semibold text-blue-700 hover:text-blue-800 transition-colors font-bold relative flex items-center w-max bg-blue-50 px-3 py-1 rounded-lg">
-
         Dashboard Tutor
-
-        <!-- Notificación Tutor -->
         @if (mensajesNuevosProgramador() > 0) {
         <span
           class="absolute -top-2 -right-3 bg-amber-500 text-slate-900 text-[10px] font-black px-1.5 py-0.5 rounded-full shadow-sm animate-pulse pointer-events-none">
           {{ mensajesNuevosProgramador() }}
         </span>
         }
+      </a>
+    </li>
 
+    <li>
+      <a routerLink="/internal-signup" routerLinkActive="border-b-2 border-blue-500 text-blue-600"
+        class="text-sm font-semibold text-stone-600 hover:text-blue-600 pb-1 transition-colors">
+        Crear cuentas
       </a>
     </li>
     }
@@ -150,6 +153,11 @@
       {{ mensajesNuevosProgramador() }}
     </span>
     }
+  </a>
+
+  <a routerLink="/internal-signup" (click)="closeMenu()" routerLinkActive="bg-blue-50 text-blue-600 font-bold"
+    class="block px-4 py-3 hover:bg-slate-50 rounded-lg font-medium transition-colors">
+    Crear cuentas
   </a>
   }
 

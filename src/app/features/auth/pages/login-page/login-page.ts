@@ -20,9 +20,6 @@ export class LoginPage {
     this.iniciarSesion(() => this.auth.loginWithGoogle());
   }
 
-  ingresarConFacebook() {
-    this.iniciarSesion(() => this.auth.loginWithFacebook());
-  }
 
   ingresarConMicrosoft() {
     this.iniciarSesion(() => this.auth.loginWithMicrosoft());

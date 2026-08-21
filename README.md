@@ -37,7 +37,7 @@ Plataforma educativa donde los estudiantes pueden consultar ejercicios resueltos
 | --- | --- |
 | **Angular** | Framework Frontend (Standalone Components, Signals, Enrutamiento dinámico). |
 | **TailwindCSS & DaisyUI** | Diseño de interfaces, utilidades CSS y componentes preconstruidos. |
-| **Firebase Auth** | Gestión de usuarios mediante autenticación social (Google, Facebook y Microsoft). |
+| **Firebase Auth** | Gestión de usuarios mediante autenticación social (Google y Microsoft) para estudiantes. Acceso interno con correo/contraseña restringido al administrador, mediante rutas ocultas no enlazadas públicamente. |
 | **Firebase Firestore** | Base de datos NoSQL para solicitudes de ejercicios, contenido de capítulos y datos de la plataforma, con reglas de seguridad y notificaciones en tiempo real. |
 | **Cloudinary** | Almacenamiento en la nube (unsigned upload) para las fotografías de los ejercicios sugeridos por los estudiantes y las respuestas del administrador. |
 | **KaTeX** | Renderizado de fórmulas y ecuaciones matemáticas dentro del contenido de los capítulos. |
@@ -53,7 +53,9 @@ Plataforma educativa donde los estudiantes pueden consultar ejercicios resueltos
 * Menú responsive con hamburguesa para dispositivos móviles.
 
 ### Autenticación y Seguridad
-* Inicio de sesión mediante cuentas sociales: Google, Facebook y Microsoft (Firebase Auth), evitando el registro con credenciales falsas o correos inexistentes.
+* Inicio de sesión para estudiantes mediante cuentas sociales: Google y Microsoft (Firebase Auth), evitando el registro con credenciales falsas o correos inexistentes.
+* Acceso interno de administrador (`/internal-login`) mediante correo y contraseña, sin enlaces públicos visibles hacia esa ruta.
+* Creación de cuentas de prueba o cuentas adicionales de administrador (`/internal-signup`), disponible únicamente para administradores ya autenticados.
 * Guards de ruta: `authGuard` (usuarios logueados), `guestGuard` (usuarios no logueados) y `adminGuard` (solo administradores, definidos por lista de correos autorizados).
 * Reglas de seguridad de Firestore: cada estudiante solo accede a sus propias solicitudes; los administradores acceden a todas y son los únicos que pueden responderlas.
 
@@ -91,7 +93,7 @@ El proyecto está optimizado para ejecutarse en entornos locales bajo **Windows*
 
 * **Node.js** (Versión LTS recomendada)
 * **Angular CLI** (`npm install -g @angular/cli`)
-* **Proyecto configurado en Firebase** (Auth + Firestore), con Google, Facebook y Microsoft habilitados como proveedores de acceso.
+* **Proyecto configurado en Firebase** (Auth + Firestore), con Google y Microsoft habilitados como proveedores de acceso.
 * **Cuenta de Cloudinary** con un upload preset de tipo *unsigned*.
 
 ### Instalación
@@ -141,7 +143,8 @@ El proyecto estará disponible en `http://localhost:4200/`.
 ![](./assets/04-temario-cap1.png)
 
 ### Iniciar Sesión
-**Descripción:** Pantalla de autenticación. Ofrece a los estudiantes un acceso rápido y seguro mediante inicio de sesión con cuentas de Google, Facebook o Microsoft.
+**Descripción:** **Descripción:** Pantalla de autenticación. Ofrece a los estudiantes un acceso rápido y seguro mediante inicio de sesión con cuentas de Google o Microsoft.
+
 ![](./assets/02-iniciar-sesion.png)
 
 ### Vista de Usuario Autenticado
