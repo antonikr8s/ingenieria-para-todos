@@ -2,6 +2,8 @@
 
 ## Aplicación Web Educativa con Angular, Firebase y TailwindCSS para la Gestión de Ejercicios
 
+🔗 **Demo en producción:** [ingenieria-para-todos.vercel.app](https://ingenieria-para-todos.vercel.app)
+
 ![Logo UPS](assets/00-ups-icc.png)
 
 <div align="center">
@@ -41,7 +43,7 @@ Plataforma educativa donde los estudiantes pueden consultar ejercicios resueltos
 | **Firebase Firestore** | Base de datos NoSQL para solicitudes de ejercicios, contenido de capítulos y datos de la plataforma, con reglas de seguridad y notificaciones en tiempo real. |
 | **Cloudinary** | Almacenamiento en la nube (unsigned upload) para las fotografías de los ejercicios sugeridos por los estudiantes y las respuestas del administrador. |
 | **KaTeX** | Renderizado de fórmulas y ecuaciones matemáticas dentro del contenido de los capítulos. |
-
+| **Vercel** | Hosting y despliegue continuo del frontend, con integración directa a GitHub (despliegue automático en cada `push` a `main`). |
 ---
 
 ## Características Implementadas
@@ -85,6 +87,30 @@ Plataforma educativa donde los estudiantes pueden consultar ejercicios resueltos
 
 ---
 
+## Despliegue en Producción
+
+El proyecto está desplegado en **Vercel**, con integración continua desde GitHub: cada `push` a la rama `main` dispara automáticamente un nuevo build y despliegue.
+
+### Configuración del proyecto en Vercel
+
+* **Framework Preset:** Angular
+* **Output Directory:** `dist/ingenieria-para-todos/browser` (ruta específica del builder `@angular/build:application` usado por Angular 21; Vercel no la detecta automáticamente y debe configurarse manualmente).
+* **Install Command:** `npm install --legacy-peer-deps` (necesario por el conflicto de peer dependency entre Angular 21 y `@angular/fire@20`, que aún no declara soporte oficial para Angular 21).
+* **Node.js Version:** 24.x
+
+### Dominios autorizados en Firebase
+
+Para que la autenticación (Google/Microsoft) funcione en producción, el dominio de Vercel (`ingenieria-para-todos.vercel.app`) debe agregarse manualmente en **Firebase Console → Authentication → Settings → Authorized domains**. Sin este paso, el login falla con el error `auth/unauthorized-domain`.
+
+### Notas del proceso de despliegue
+
+Durante la configuración inicial se resolvieron varios problemas comunes al desplegar un proyecto Angular 21 + Firebase en Vercel:
+* Conflicto de peer dependencies entre Angular 21 y `@angular/fire` → resuelto con `--legacy-peer-deps`.
+* Dependencias de Tailwind (`@tailwindcss/postcss`) y DaisyUI (`daisyui`) no declaradas explícitamente en `package.json` (quedaban instaladas solo de forma transitiva en el entorno local) → causaban error `MODULE_NOT_FOUND` en Vercel; se corrigió agregándolas como dependencias directas.
+* Límite de tamaño de bundle (`budgets` en `angular.json`) ajustado de 500kB/1MB a 1MB/2MB para reflejar el tamaño real del proyecto con Firebase, KaTeX y DaisyUI incluidos.
+
+---
+
 ## Requisitos y Configuración Local
 
 El proyecto está optimizado para ejecutarse en entornos locales bajo **Windows**.
@@ -100,16 +126,18 @@ El proyecto está optimizado para ejecutarse en entornos locales bajo **Windows*
 
 1. Clonar el repositorio:
 
-```bash
+\`\`\`bash
 git clone https://github.com/antonikr8s/ingenieria-para-todos
 cd ingenieria-para-todos
-```
+\`\`\`
 
 2. Instalar dependencias:
 
-```bash
-npm install
-```
+> **Nota:** por un conflicto de peer dependencies entre Angular 21 y `@angular/fire`, la instalación requiere la bandera `--legacy-peer-deps`.
+
+\`\`\`bash
+npm install --legacy-peer-deps
+\`\`\`
 
 3. Configurar Firebase y Cloudinary:
    * Completar las credenciales del proyecto de Firebase en `src/app/app.config.ts`.
@@ -117,20 +145,28 @@ npm install
 
 4. Ejecutar el servidor local:
 
-```bash
+\`\`\`bash
 ng serve
-```
+\`\`\`
 
 El proyecto estará disponible en `http://localhost:4200/`.
 
 ---
 
-## Próximos Pasos (En Desarrollo)
+## Arquitectura del Sistema
 
-* Carga completa del contenido de los 4 capítulos del libro (actualmente en pruebas con datos parciales en Firestore).
-* Despliegue en Firebase Hosting.
-* Grabación de los videos explicativos por subtema.
-* Validación de tamaño de archivo también del lado del servidor (Cloudinary).
+**Descripción:** El siguiente diagrama ilustra la arquitectura general de la plataforma educativa, diseñada bajo un enfoque moderno de Single Page Application (SPA) apoyado en servicios Cloud.
+
+La solución integra las siguientes tecnologías:
+
+*   **Angular** como framework frontend central para gestionar la interfaz de usuario, el enrutamiento dinámico, los guards de seguridad y el consumo de servicios.
+*   **Firebase (Auth & Firestore)** operando como Backend as a Service (BaaS) para la gestión segura de accesos (roles de estudiante y administrador) y la persistencia de datos NoSQL con sincronización en tiempo real.
+*   **Cloudinary** para el almacenamiento optimizado y en la nube de las fotografías (mediante *unsigned uploads*).
+*   **TailwindCSS & DaisyUI** conformando el sistema de diseño visual, garantizando una interfaz completamente responsiva.
+*   **Vercel** como infraestructura de hosting, CDN y orquestador del Despliegue Continuo (CD) automatizado desde el repositorio en GitHub.
+
+![Arquitectura de la Plataforma de Álgebra Lineal](./assets/arquitectura-sistema.png)
+
 
 ## Capturas de Pantalla
 
@@ -178,3 +214,14 @@ Una vez autenticado, la barra de navegación se actualiza para mostrar las opcio
 
 Permite crear cuentas de prueba para el desarrollo y cuentas adicionales de administrador destinadas a colaboradores que ayuden a responder las solicitudes de los estudiantes. Esta funcionalidad no es pública: los estudiantes no pueden visualizar ni acceder al formulario, ya que requiere una sesión activa de administrador.
 ![](./assets/10-creacion-cuentas.png)
+
+### Despliegue en Producción (Vercel)
+**Descripción:** Panel de detalles de Vercel que evidencia el despliegue exitoso y estable de la aplicación en el entorno de producción. Muestra la integración continua (CI/CD) automatizada desde la rama `main` de GitHub, los dominios configurados y una previsualización en vivo de la interfaz.
+![](./assets/11-vercel.png)
+
+## Próximos Pasos (En Desarrollo)
+
+* Carga completa del contenido de los 4 capítulos del libro (actualmente en pruebas con datos parciales en Firestore).
+* Grabación de los videos explicativos por subtema.
+* Validación de tamaño de archivo también del lado del servidor (Cloudinary).
+* Optimización del tamaño del bundle inicial para acercarse al presupuesto de rendimiento recomendado por Angular.
