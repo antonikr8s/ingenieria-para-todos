@@ -1,0 +1,80 @@
+<main class="flex min-h-screen items-center justify-center bg-stone-50 px-4 py-10">
+  <section class="w-full max-w-lg rounded-3xl border border-stone-200 bg-white p-7 shadow-sm sm:p-9">
+    <header class="mb-7 text-center">
+      <img src="/assets/logo-IPT.jpeg" alt="Logo de Ingeniería para Todos" class="mx-auto mb-4 h-20 w-20 rounded-2xl object-cover" />
+      <p class="text-sm font-semibold uppercase tracking-[0.2em] text-blue-600">Ingeniería para Todos</p>
+      <h1 class="mt-3 text-3xl font-bold text-stone-900">
+        @if (mode() === 'resetPassword') { Restablece tu contraseña }
+        @else if (mode() === 'verifyEmail') { Verifica tu correo }
+        @else if (completed()) { Solicitud completada }
+        @else { Enlace de cuenta }
+      </h1>
+    </header>
+
+    @if (loading()) {
+      <p role="status" class="text-center text-stone-600">Comprobando el enlace...</p>
+    } @else if (errorMessage()) {
+      <div role="alert" class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+        {{ errorMessage() }}
+      </div>
+      <a routerLink="/login" class="mt-6 block w-full rounded-full bg-blue-600 p-3 text-center font-semibold text-white transition-colors hover:bg-blue-700">Volver a iniciar sesión</a>
+    } @else if (completed()) {
+      <div class="space-y-4 text-center text-stone-700">
+        @if (mode() === 'resetPassword') {
+          <p>Tu contraseña se cambió correctamente. Ya puedes iniciar sesión con tu nueva contraseña.</p>
+          <a routerLink="/login" [queryParams]="{ passwordReset: 'success' }" class="block w-full rounded-full bg-blue-600 p-3 font-semibold text-white transition-colors hover:bg-blue-700">Ir a iniciar sesión</a>
+        } @else {
+          <p>Tu correo fue verificado. Ya puedes iniciar sesión en Ingeniería para Todos.</p>
+          <a routerLink="/login" class="block w-full rounded-full bg-blue-600 p-3 font-semibold text-white transition-colors hover:bg-blue-700">Ir a iniciar sesión</a>
+        }
+      </div>
+    } @else if (mode() === 'resetPassword') {
+      <div class="mb-5 text-center text-stone-600">
+        <p>Crea una contraseña nueva para</p>
+        <p class="mt-1 break-all font-semibold text-stone-900">{{ email() }}</p>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="submitNewPassword()" class="space-y-4" novalidate>
+        <div>
+          <label for="new-password" class="mb-1 block font-medium text-stone-800">Nueva contraseña</label>
+          <div class="relative rounded-xl border border-stone-300 transition-colors hover:border-stone-700 focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-200" [class.border-red-600]="form.controls.password.touched && form.controls.password.invalid">
+            <input id="new-password" [type]="showPassword() ? 'text' : 'password'" formControlName="password" autocomplete="new-password" (focus)="passwordFocused.set(true)" (blur)="passwordFocused.set(false)" (paste)="blockClipboard($event)" (copy)="blockClipboard($event)" (cut)="blockClipboard($event)" class="w-full rounded-xl border-0 bg-transparent p-3 pr-24 outline-none focus:ring-0" />
+            <button type="button" (focus)="passwordFocused.set(true)" (click)="showPassword.set(!showPassword())" class="absolute inset-y-1 right-1 rounded-full px-3 text-sm text-stone-700 transition-colors hover:bg-stone-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600">{{ showPassword() ? 'Ocultar' : 'Mostrar' }}</button>
+          </div>
+          @if (passwordFocused()) {
+            <ul class="mt-3 grid grid-cols-1 gap-2 text-sm sm:grid-cols-2" aria-label="Requisitos de contraseña">
+              @for (rule of requirements; track rule.label) {
+                <li class="flex items-center text-stone-600">
+                  <span class="mr-2 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors" [class.border-stone-400]="!rule.met" [class.border-stone-900]="rule.met" [class.bg-stone-900]="rule.met" [class.text-white]="rule.met" aria-hidden="true">
+                    @if (rule.met) {
+                      <svg class="h-3 w-3" viewBox="0 0 16 16" fill="none"><path d="m3 8 3.2 3.2L13 4.8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                    }
+                  </span>
+                  {{ rule.label }}
+                </li>
+              }
+            </ul>
+          }
+          @if (form.controls.password.touched && form.controls.password.invalid) {
+            <p class="mt-1 text-sm text-red-700">La contraseña debe cumplir todos los requisitos.</p>
+          }
+        </div>
+
+        <div>
+          <label for="confirm-new-password" class="mb-1 block font-medium text-stone-800">Confirmar contraseña</label>
+          <div class="relative rounded-xl border border-stone-300 transition-colors hover:border-stone-700 focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-200" [class.border-red-600]="form.controls.confirmPassword.touched && form.hasError('passwordMismatch')">
+            <input id="confirm-new-password" [type]="showConfirm() ? 'text' : 'password'" formControlName="confirmPassword" autocomplete="new-password" (paste)="blockClipboard($event)" (copy)="blockClipboard($event)" (cut)="blockClipboard($event)" class="w-full rounded-xl border-0 bg-transparent p-3 pr-24 outline-none focus:ring-0" />
+            <button type="button" (click)="showConfirm.set(!showConfirm())" class="absolute inset-y-1 right-1 rounded-full px-3 text-sm text-stone-700 transition-colors hover:bg-stone-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600">{{ showConfirm() ? 'Ocultar' : 'Mostrar' }}</button>
+          </div>
+          @if (form.controls.confirmPassword.touched && form.hasError('passwordMismatch')) {
+            <p class="mt-1 text-sm text-red-700">Las contraseñas no coinciden.</p>
+          }
+        </div>
+
+        <button type="submit" [disabled]="submitting()" class="w-full cursor-pointer rounded-full bg-blue-600 p-3 font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60">
+          {{ submitting() ? 'Guardando...' : 'Cambiar contraseña' }}
+        </button>
+      </form>
+    }
+  </section>
+</main>

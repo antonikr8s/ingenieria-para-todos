@@ -10,6 +10,8 @@ export const guestGuard: CanActivateFn = () => {
   // Esperamos a Firebase. Si hay usuario, lo mandamos al Home. Si no, lo dejamos pasar al Login.
   return authState(auth).pipe(
     take(1),
-    map(user => (user ? router.createUrlTree(['/']) : true))
+    map(user => !user ? true :
+      user.providerData.some(provider => provider.providerId === 'password') && !user.emailVerified
+        ? router.createUrlTree(['/verificar-correo']) : router.createUrlTree(['/']))
   );
 };

@@ -1,0 +1,109 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function canUseRequests() {
+      return request.auth != null
+        && (request.auth.token.firebase.sign_in_provider != 'password'
+          || request.auth.token.email_verified == true);
+    }
+
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email == 'antoniogordillo.1808@gmail.com';
+    }
+
+    function limitPath(uid) {
+      return /databases/$(database)/documents/limitesSolicitudes/$(uid);
+    }
+
+    function requestMatchesLimit(uid, requestId) {
+      let requestAfter = getAfter(/databases/$(database)/documents/peticiones/$(requestId));
+      return requestAfter.data.uid_estudiante == uid
+        && requestAfter.data.fecha_creacion == request.time
+        && requestAfter.data.estado == 'Pendiente';
+    }
+
+    match /peticiones/{peticionId} {
+      allow create: if canUseRequests()
+        && request.resource.data.keys().hasAll([
+          'uid_estudiante', 'correo_estudiante', 'nombre_estudiante', 'capitulo',
+          'imagen_url', 'descripcion', 'fecha_creacion', 'estado', 'vistoPorEstudiante'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'uid_estudiante', 'correo_estudiante', 'nombre_estudiante', 'capitulo',
+          'imagen_url', 'descripcion', 'fecha_creacion', 'estado', 'vistoPorEstudiante'
+        ])
+        && request.resource.data.uid_estudiante == request.auth.uid
+        && request.resource.data.correo_estudiante is string
+        && request.resource.data.correo_estudiante == request.auth.token.email
+        && request.resource.data.correo_estudiante.size() <= 254
+        && request.resource.data.nombre_estudiante is string
+        && request.resource.data.nombre_estudiante.size() >= 2
+        && request.resource.data.nombre_estudiante.size() <= 100
+        && request.resource.data.capitulo is string
+        && request.resource.data.capitulo in ['1', '2', '3', '4']
+        && request.resource.data.imagen_url is string
+        && (request.resource.data.imagen_url == ''
+          || request.resource.data.imagen_url.matches('https://res\\.cloudinary\\.com/.*'))
+        && request.resource.data.descripcion is string
+        && request.resource.data.descripcion.size() >= 10
+        && request.resource.data.descripcion.size() <= 5000
+        && request.resource.data.fecha_creacion == request.time
+        && request.resource.data.estado == 'Pendiente'
+        && request.resource.data.vistoPorEstudiante == true
+        && existsAfter(limitPath(request.auth.uid))
+        && getAfter(limitPath(request.auth.uid)).data.uid_estudiante == request.auth.uid
+        && getAfter(limitPath(request.auth.uid)).data.solicitudId == peticionId
+        && getAfter(limitPath(request.auth.uid)).data.ultimaSolicitud == request.time;
+
+      allow read: if canUseRequests()
+        && (resource.data.uid_estudiante == request.auth.uid || isAdmin());
+
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'respuesta', 'respuestaImagenUrl', 'estado', 'vistoPorEstudiante', 'fecha_respuesta'
+        ])
+        && request.resource.data.estado == 'Respondida'
+        && request.resource.data.respuesta is string
+        && request.resource.data.respuesta.size() <= 5000
+        && request.resource.data.fecha_respuesta == request.time;
+
+      allow update: if canUseRequests()
+        && resource.data.uid_estudiante == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['vistoPorEstudiante'])
+        && request.resource.data.vistoPorEstudiante == true;
+
+      allow delete: if false;
+    }
+
+    match /capitulos/{capituloId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /limitesSolicitudes/{uid} {
+      allow get: if canUseRequests() && request.auth.uid == uid;
+      allow list, delete: if false;
+
+      allow create: if canUseRequests()
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['uid_estudiante', 'ultimaSolicitud', 'solicitudId'])
+        && request.resource.data.keys().hasAll(['uid_estudiante', 'ultimaSolicitud', 'solicitudId'])
+        && request.resource.data.uid_estudiante == uid
+        && request.resource.data.ultimaSolicitud == request.time
+        && request.resource.data.solicitudId is string
+        && requestMatchesLimit(uid, request.resource.data.solicitudId);
+
+      allow update: if canUseRequests()
+        && request.auth.uid == uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['ultimaSolicitud', 'solicitudId'])
+        && request.resource.data.uid_estudiante == uid
+        && request.time >= resource.data.ultimaSolicitud + duration.value(14, 'd')
+        && request.resource.data.ultimaSolicitud == request.time
+        && request.resource.data.solicitudId is string
+        && requestMatchesLimit(uid, request.resource.data.solicitudId);
+    }
+  }
+}

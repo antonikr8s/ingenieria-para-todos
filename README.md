@@ -39,7 +39,7 @@ Plataforma educativa donde los estudiantes pueden consultar ejercicios resueltos
 | --- | --- |
 | **Angular** | Framework Frontend (Standalone Components, Signals, Enrutamiento dinámico). |
 | **TailwindCSS & DaisyUI** | Diseño de interfaces, utilidades CSS y componentes preconstruidos. |
-| **Firebase Auth** | Gestión de usuarios mediante autenticación social (Google y Microsoft) para estudiantes. Acceso interno con correo/contraseña restringido al administrador, mediante rutas ocultas no enlazadas públicamente. |
+| **Firebase Auth** | Acceso con Google, Microsoft o correo y contraseña. Registro público con verificación del correo. |
 | **Firebase Firestore** | Base de datos NoSQL para solicitudes de ejercicios, contenido de capítulos y datos de la plataforma, con reglas de seguridad y notificaciones en tiempo real. |
 | **Cloudinary** | Almacenamiento en la nube (unsigned upload) para las fotografías de los ejercicios sugeridos por los estudiantes y las respuestas del administrador. |
 | **KaTeX** | Renderizado de fórmulas y ecuaciones matemáticas dentro del contenido de los capítulos. |
@@ -55,10 +55,10 @@ Plataforma educativa donde los estudiantes pueden consultar ejercicios resueltos
 * Menú responsive con hamburguesa para dispositivos móviles.
 
 ### Autenticación y Seguridad
-* Inicio de sesión para estudiantes mediante cuentas sociales: Google y Microsoft (Firebase Auth), evitando el registro con credenciales falsas o correos inexistentes.
+* Inicio de sesión con Google, Microsoft o correo y contraseña mediante Firebase Auth.
 * Acceso interno de administrador (`/internal-login`) mediante correo y contraseña, sin enlaces públicos visibles hacia esa ruta.
-* Creación de cuentas de prueba o cuentas adicionales de administrador (`/internal-signup`), disponible únicamente para administradores ya autenticados.
-* Guards de ruta: `authGuard` (usuarios logueados), `guestGuard` (usuarios no logueados) y `adminGuard` (solo administradores, definidos por lista de correos autorizados).
+* Registro público (`/registro`) con verificación de correo electrónico.
+* Guards de ruta: `authGuard` (usuarios autenticados y, para contraseña, correo verificado), `guestGuard` (visitantes) y `adminGuard` (cuenta administradora verificada).
 * Reglas de seguridad de Firestore: cada estudiante solo accede a sus propias solicitudes; los administradores acceden a todas y son los únicos que pueden responderlas.
 
 ### Temario y Contenido de Capítulos (`/capitulo/:id`)
@@ -69,7 +69,7 @@ Plataforma educativa donde los estudiantes pueden consultar ejercicios resueltos
 
 ### Módulo de Sugerencias (`/sugerir-ejercicio`)
 * Formulario de solicitud (Nombre, Correo, Capítulo, Detalles, Foto).
-* Fotografía del ejercicio obligatoria, con validación de formato (JPG/PNG) y tamaño máximo.
+* Fotografía opcional, con validación de formato (JPG/PNG) y tamaño máximo cuando se adjunta.
 * Subida de imágenes a Cloudinary (unsigned upload preset).
 * Política de solicitudes: 1 petición cada 14 días por estudiante, con fecha y hora exactas de disponibilidad.
 
@@ -83,7 +83,7 @@ Plataforma educativa donde los estudiantes pueden consultar ejercicios resueltos
 * Filtros por estado (Todas / Pendiente / Respondida).
 * Respuesta directa a cada solicitud, con texto y fotografía obligatoria de la resolución, actualizando su estado al instante.
 * Notificaciones en tiempo real de nuevas solicitudes pendientes.
-* Soporte para múltiples administradores mediante lista de correos autorizados.
+* Acceso administrativo limitado a la cuenta configurada en las reglas de Firestore.
 
 ---
 
@@ -126,18 +126,18 @@ El proyecto está optimizado para ejecutarse en entornos locales bajo **Windows*
 
 1. Clonar el repositorio:
 
-\`\`\`bash
+```bash
 git clone https://github.com/antonikr8s/ingenieria-para-todos
 cd ingenieria-para-todos
-\`\`\`
+```
 
 2. Instalar dependencias:
 
 > **Nota:** por un conflicto de peer dependencies entre Angular 21 y `@angular/fire`, la instalación requiere la bandera `--legacy-peer-deps`.
 
-\`\`\`bash
+```bash
 npm install --legacy-peer-deps
-\`\`\`
+```
 
 3. Configurar Firebase y Cloudinary:
    * Completar las credenciales del proyecto de Firebase en `src/app/app.config.ts`.
@@ -145,11 +145,24 @@ npm install --legacy-peer-deps
 
 4. Ejecutar el servidor local:
 
-\`\`\`bash
+```bash
 ng serve
-\`\`\`
+```
 
 El proyecto estará disponible en `http://localhost:4200/`.
+
+### Comprobación local del acceso
+
+Con `npm start`, visita estas rutas en una ventana privada y comprueba el resultado:
+
+1. `/login` muestra correo y contraseña, Google, Microsoft y el enlace «Crear cuenta».
+2. `/registro` muestra los requisitos de contraseña. Un formulario incompleto indica qué falta.
+3. Después de registrar una dirección que puedas recibir, `/verificar-correo` muestra esa dirección, el contador de reenvío y el botón «Ya verifiqué mi correo».
+4. Antes de verificar, `/sugerir-ejercicio` y `/mis-solicitudes` deben enviarte a `/verificar-correo`. Después de verificar, deben abrirse.
+5. «Olvidaste tu contraseña» abre el cuadro de recuperación y conserva el correo escrito en `/login`. Solicita el enlace solo con una cuenta de correo propia.
+6. `/internal-signup` ya no presenta el formulario anterior. `/panel` debe permitir acceso únicamente a la cuenta administradora.
+
+El correo de Firebase que hoy se envía abre su controlador predeterminado. Las comprobaciones de Firestore deben repetirse cuando se publiquen las reglas del archivo `firestore.rules`.
 
 ---
 
@@ -179,7 +192,7 @@ La solución integra las siguientes tecnologías:
 ![](./assets/04-temario-cap1.png)
 
 ### Iniciar Sesión
-**Descripción:** **Descripción:** Pantalla de autenticación. Ofrece a los estudiantes un acceso rápido y seguro mediante inicio de sesión con cuentas de Google o Microsoft.
+**Descripción:** Pantalla de autenticación con correo y contraseña, Google y Microsoft. Incluye acceso al registro y a la recuperación de contraseña.
 
 ![](./assets/02-iniciar-sesion.png)
 
@@ -204,22 +217,36 @@ La solución integra las siguientes tecnologías:
 ![](./assets/08-dashboard.png)
 
 ### Acceso Interno de Administrador (`/internal-login`)
-**Descripción:** Ruta interna y no visible en la interfaz pública. Solo es accesible ingresando manualmente la URL en el navegador. Permite al administrador autenticarse mediante correo electrónico y contraseña utilizando credenciales fijas de prueba. No se expone ningún formulario de registro público que permita crear cuentas con correos falsos.
+**Descripción:** Ruta heredada de acceso por correo y contraseña. El registro de estudiantes se realiza ahora en `/registro` y requiere verificación del correo.
 
-Una vez autenticado, la barra de navegación se actualiza para mostrar las opciones exclusivas del administrador: **"Dashboard Tutor"** y **"Crear cuentas"**.
+Una vez autenticado, la barra de navegación muestra **"Dashboard Tutor"** al administrador.
 ![](./assets/09-Acceso-interno.png)
 
-### Creación de Cuentas Internas (`/internal-signup`)
-**Descripción:** Ruta protegida exclusivamente para administradores autenticados mediante `adminGuard`. La opción para acceder a esta página aparece en la barra de navegación únicamente cuando existe una sesión activa de administrador.
+### Registro de estudiantes (`/registro`)
+**Descripción:** Formulario público de registro. Los estudiantes deben verificar su correo antes de utilizar las funciones que requieren una cuenta.
 
-Permite crear cuentas de prueba para el desarrollo y cuentas adicionales de administrador destinadas a colaboradores que ayuden a responder las solicitudes de los estudiantes. Esta funcionalidad no es pública: los estudiantes no pueden visualizar ni acceder al formulario, ya que requiere una sesión activa de administrador.
-![](./assets/10-creacion-cuentas.png)
+### Verificación y recuperación
+Tras el registro, `/verificar-correo` muestra el correo de destino, permite comprobar la verificación y ofrece el reenvío tras un contador de 60 segundos. «Olvidaste tu contraseña» abre un formulario de recuperación en `/login`. La página `/auth/action` puede recibir un código de Firebase y pedir una contraseña nueva con confirmación. Los correos actuales siguen abriendo el controlador de Firebase mientras la configuración de plantillas y URL de acción del proyecto esté restringida.
 
 ### Despliegue en Producción (Vercel)
 **Descripción:** Panel de detalles de Vercel que evidencia el despliegue exitoso y estable de la aplicación en el entorno de producción. Muestra la integración continua (CI/CD) automatizada desde la rama `main` de GitHub, los dominios configurados y una previsualización en vivo de la interfaz.
 ![](./assets/11-vercel.png)
 
 ## Próximos Pasos (En Desarrollo)
+
+### Estado del registro y la verificación
+
+* Registro público y acceso con correo, Google y Microsoft implementados localmente. La ruta duplicada `/internal-signup` fue retirada.
+* Reglas de Firestore preparadas en `firestore.rules`. Se publican por separado del despliegue de Vercel.
+* `npm run build` completó correctamente. El bundle inicial supera el presupuesto configurado por unos 232 kB.
+* `npm test -- --watch=false` todavía falla en las cinco pruebas antiguas por configuración incompleta de Router y Firebase en `TestBed`. La prueba de Home ya importa el nombre actual del componente.
+* Pendiente comprobar con cuentas reales el registro, correo de verificación, reenvío, login social, recuperación, permisos de estudiante y panel. La página propia de cambio de contraseña depende de que Firebase permita cambiar la URL de acción o de implementar un envío de correo propio.
+
+### Capturas por renovar
+
+Las imágenes actuales de inicio de sesión y acceso interno representan el flujo anterior. Al terminar las pruebas locales, conviene reemplazar `assets/02-iniciar-sesion.png` y `assets/09-Acceso-interno.png` y añadir capturas de `/registro`, `/verificar-correo` y el cuadro «Recuperar contraseña». `assets/10-creacion-cuentas.png` corresponde a la ruta retirada y ya no debe presentarse como funcionalidad vigente. No incluyas direcciones personales, contraseñas ni enlaces de un solo uso en las capturas.
+
+### Contenido y recursos
 
 * Carga completa del contenido de los 4 capítulos del libro (actualmente en pruebas con datos parciales en Firestore).
 * Grabación de los videos explicativos por subtema.

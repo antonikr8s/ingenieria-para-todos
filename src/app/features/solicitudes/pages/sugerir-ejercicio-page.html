@@ -42,6 +42,8 @@
         <p class="mt-4 text-stone-600 font-medium">Verificando tu cuenta...</p>
       </div>
 
+      } @else if (errorDisponibilidad()) {
+      <div role="alert" class="alert alert-error">No pudimos comprobar el límite de solicitudes. Recarga la página o inténtalo más tarde.</div>
       } @else if (!puedeSugerir()) {
 
       <div
@@ -83,6 +85,8 @@
 
 
       <form [formGroup]="sugerenciaForm" (ngSubmit)="enviarSugerencia()" class="space-y-5">
+
+        @if (errorEnvio()) { <div role="alert" class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">{{ errorEnvio() }}</div> }
 
 
         <!-- Nombre y correo -->

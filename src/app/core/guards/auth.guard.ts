@@ -10,6 +10,8 @@ export const authGuard: CanActivateFn = () => {
   // Si hay sesión válida, permite pasar. Si no, lo manda al login.
   return authState(auth).pipe(
     take(1),
-    map(user => (user ? true : router.createUrlTree(['/login'])))
+    map(user => !user ? router.createUrlTree(['/login']) :
+      user.providerData.some(provider => provider.providerId === 'password') && !user.emailVerified
+        ? router.createUrlTree(['/verificar-correo']) : true)
   );
 };

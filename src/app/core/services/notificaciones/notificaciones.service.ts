@@ -1,16 +1,13 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Firestore, collection, query, where, onSnapshot } from '@angular/fire/firestore';
 import { Auth as FirebaseAuth, authState } from '@angular/fire/auth';
+import { isAdminUser } from '../../auth/admin-access';
 
 @Injectable({ providedIn: 'root' })
 export class NotificacionesService {
   private firestore = inject(Firestore);
   private firebaseAuth = inject(FirebaseAuth);
 
-  private readonly ADMIN_EMAILS = [
-    'antoniogordillo.1808@gmail.com',
-    'admin.test@ucuenca.edu.ec'
-  ];
   // Cuántas solicitudes están Pendientes (para el admin)
   pendientesAdmin = signal(0);
 
@@ -25,7 +22,7 @@ export class NotificacionesService {
         return;
       }
 
-      if (this.ADMIN_EMAILS.includes(user.email ?? '')) {
+      if (isAdminUser(user)) {
         this.escucharPendientesAdmin();
       } else {
         this.escucharRespondidasEstudiante(user.uid);

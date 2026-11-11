@@ -23,6 +23,11 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "logo-IPT.jpeg",
+                "input": "assets",
+                "output": "assets"
               }
             ],
             "styles": [

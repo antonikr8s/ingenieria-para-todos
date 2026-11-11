@@ -1,0 +1,47 @@
+<section class="min-h-[calc(100vh-140px)] bg-stone-50 px-4 py-10">
+  <div class="mx-auto max-w-lg rounded-2xl border border-stone-200 bg-white p-7 shadow-sm">
+    <h1 class="mb-6 text-center text-3xl font-bold text-stone-900">Crea tu cuenta</h1>
+    <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4" novalidate>
+      <div>
+        <label for="register-name" class="block font-medium">Nombre y apellido</label>
+        <input id="register-name" formControlName="name" autocomplete="name" class="mt-1 w-full rounded-lg border border-stone-300 p-3 transition-colors hover:border-stone-700 focus:border-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-900" [class.border-red-600]="(form.controls.name.touched || submitted()) && form.controls.name.invalid" />
+        @if ((form.controls.name.touched || submitted()) && form.controls.name.invalid) { <p class="mt-1 text-sm text-red-700">Escribe tu nombre.</p> }
+      </div>
+      <div>
+        <label for="register-email" class="block font-medium">Correo electrónico</label>
+        <input id="register-email" type="email" formControlName="email" autocomplete="email" class="mt-1 w-full rounded-lg border border-stone-300 p-3 transition-colors hover:border-stone-700 focus:border-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-900" [class.border-red-600]="(form.controls.email.touched || submitted()) && form.controls.email.invalid" />
+        @if ((form.controls.email.touched || submitted()) && form.controls.email.invalid) { <p class="mt-1 text-sm text-red-700">Escribe un correo válido.</p> }
+      </div>
+      <div>
+        <label for="register-password" class="block font-medium">Contraseña</label>
+        <div class="relative mt-1 rounded-lg border border-stone-300 transition-colors hover:border-stone-700 focus-within:border-stone-900 focus-within:ring-1 focus-within:ring-stone-900" [class.border-red-600]="submitted() && form.controls.password.invalid">
+          <input id="register-password" [type]="showPassword() ? 'text' : 'password'" formControlName="password" autocomplete="new-password" (focus)="passwordFocused.set(true)" (blur)="passwordFocused.set(false)" (paste)="blockClipboard($event)" (copy)="blockClipboard($event)" (cut)="blockClipboard($event)" class="w-full rounded-lg border-0 bg-transparent p-3 pr-24 outline-none focus:ring-0" />
+          <button type="button" (focus)="passwordFocused.set(true)" class="absolute inset-y-1 right-1 rounded-full border-0 bg-transparent px-3 text-sm text-stone-700 transition-colors hover:bg-stone-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-stone-900" (click)="showPassword.set(!showPassword())">{{ showPassword() ? 'Ocultar' : 'Mostrar' }}</button>
+        </div>
+        @if (passwordFocused()) { <ul class="mt-3 grid grid-cols-1 gap-1 text-sm sm:grid-cols-2" aria-label="Requisitos de contraseña">
+          @for (rule of requirements; track rule.label) {
+            <li class="flex items-center text-stone-600">
+              <span class="mr-2 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors" [class.border-stone-400]="!rule.met" [class.border-stone-900]="rule.met" [class.bg-stone-900]="rule.met" [class.text-white]="rule.met" aria-hidden="true">
+                @if (rule.met) {
+                  <svg class="h-3 w-3" viewBox="0 0 16 16" fill="none"><path d="m3 8 3.2 3.2L13 4.8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                }
+              </span>
+              {{ rule.label }}
+            </li>
+          }
+        </ul> }
+      </div>
+      <div>
+        <label for="register-confirm" class="block font-medium">Confirmar contraseña</label>
+        <div class="relative mt-1 rounded-lg border border-stone-300 transition-colors hover:border-stone-700 focus-within:border-stone-900 focus-within:ring-1 focus-within:ring-stone-900" [class.border-red-600]="(form.controls.confirmPassword.touched || submitted()) && form.hasError('passwordMismatch')">
+          <input id="register-confirm" [type]="showConfirm() ? 'text' : 'password'" formControlName="confirmPassword" autocomplete="new-password" (paste)="blockClipboard($event)" (copy)="blockClipboard($event)" (cut)="blockClipboard($event)" class="w-full rounded-lg border-0 bg-transparent p-3 pr-24 outline-none focus:ring-0" />
+          <button type="button" class="absolute inset-y-1 right-1 rounded-full border-0 bg-transparent px-3 text-sm text-blue-700 transition-colors hover:bg-stone-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-700" (click)="showConfirm.set(!showConfirm())">{{ showConfirm() ? 'Ocultar' : 'Mostrar' }}</button>
+        </div>
+        @if ((form.controls.confirmPassword.touched || submitted()) && form.hasError('passwordMismatch')) { <p class="mt-1 text-sm text-red-700">Las contraseñas no coinciden.</p> }
+      </div>
+      @if (errorMessage()) { <p role="alert" class="text-sm text-red-700">{{ errorMessage() }}</p> }
+      <button type="submit" [disabled]="loading()" class="w-full rounded-full bg-[#17152b] p-3 font-semibold text-white transition-colors hover:bg-[#27243d] disabled:cursor-not-allowed disabled:opacity-60">{{ loading() ? 'Creando cuenta...' : 'Crear cuenta' }}</button>
+    </form>
+    <p class="mt-5 text-center text-sm">¿Ya tienes una cuenta? <a routerLink="/login" class="font-semibold text-blue-700 underline">Iniciar sesión</a></p>
+  </div>
+</section>

@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { Home } from './features/home/pages/home-page/home-page';
 import { LoginPage } from './features/auth/pages/login-page/login-page';
-import { CrearCuentaPage } from './features/auth/pages/crear-cuenta-page/crear-cuenta-page';
 import { IniciarCuentaPage } from './features/auth/pages/iniciar-cuenta-page/iniciar-cuenta-page';
 import { CapituloPage } from './features/home/pages/capitulo-page/capitulo-page';
 import { SugerirEjercicioPage } from './features/solicitudes/pages/sugerir-ejercicio-page';
@@ -11,6 +10,9 @@ import { PanelPage } from './features/solicitudes/pages/panel-page';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
 import { adminGuard } from './core/guards/admin.guard';
+import { RegistroPage } from './features/auth/pages/registro-page/registro-page';
+import { VerificarCorreoPage } from './features/auth/pages/verificar-correo-page/verificar-correo-page';
+import { AuthActionPage } from './features/auth/pages/auth-action-page/auth-action-page';
 
 export const routes: Routes = [
   {
@@ -24,12 +26,9 @@ export const routes: Routes = [
     canActivate: [guestGuard],
     title: 'Iniciar Sesión | Ingeniería para Todos'
   },
-  {
-    path: 'internal-signup',
-    component: CrearCuentaPage,
-    canActivate: [adminGuard],
-    title: 'Ingeniería para Todos'
-  },
+  { path: 'registro', component: RegistroPage, canActivate: [guestGuard], title: 'Crear cuenta | Ingeniería para Todos' },
+  { path: 'verificar-correo', component: VerificarCorreoPage, title: 'Verificar correo | Ingeniería para Todos' },
+  { path: 'auth/action', component: AuthActionPage, title: 'Cuenta | Ingeniería para Todos' },
   {
     path: 'internal-login',
     component: IniciarCuentaPage,

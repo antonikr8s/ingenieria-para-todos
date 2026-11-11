@@ -27,6 +27,8 @@ export class SugerirEjercicioPage implements OnInit {
   // Estados para validación de días
   verificandoDisponibilidad = signal(true);
   puedeSugerir = signal(false);
+  errorDisponibilidad = signal(false);
+  errorEnvio = signal('');
   diasRestantes = signal(0);
   fechaDisponible = signal<Date | null>(null);
 
@@ -102,8 +104,8 @@ export class SugerirEjercicioPage implements OnInit {
       }
     } catch (error) {
       console.error('🔥 Error de Firestore (probablemente falta un Índice):', error);
-      this.puedeSugerir.set(true);
-      this.diasRestantes.set(0);
+      this.errorDisponibilidad.set(true);
+      this.puedeSugerir.set(false);
     } finally {
       this.verificandoDisponibilidad.set(false);
     }
@@ -174,6 +176,7 @@ export class SugerirEjercicioPage implements OnInit {
     if (!user) return;
 
     this.enviando.set(true);
+    this.errorEnvio.set('');
 
     try {
 
@@ -183,7 +186,10 @@ export class SugerirEjercicioPage implements OnInit {
 
       if (this.archivoSeleccionado) {
         const urlSubida = await this.cloudinaryService.subirImagen(this.archivoSeleccionado);
-        imagenUrl = urlSubida ?? '';
+        if (!urlSubida) {
+          throw new Error('No se pudo cargar la imagen.');
+        }
+        imagenUrl = urlSubida;
       }
 
       const datosSolicitud = {
@@ -225,7 +231,16 @@ export class SugerirEjercicioPage implements OnInit {
 
     } catch (error) {
       console.error('Error al enviar la sugerencia:', error);
-      alert('Hubo un problema de conexión. Inténtalo de nuevo.');
+      if (error instanceof Error && error.message === 'REQUEST_COOLDOWN') {
+        const fecha = (error as Error & { fechaDisponible?: Date }).fechaDisponible;
+        this.puedeSugerir.set(false);
+        this.fechaDisponible.set(fecha ?? null);
+        this.errorEnvio.set('Ya enviaste una solicitud recientemente. Revisa la fecha en que podrás enviar la siguiente.');
+      } else {
+        this.errorEnvio.set(error instanceof Error && error.message === 'No se pudo cargar la imagen.'
+          ? 'No se pudo cargar la foto. Revisa tu conexión e inténtalo de nuevo.'
+          : 'No se pudo guardar tu solicitud. Inténtalo de nuevo.');
+      }
       this.enviando.set(false);
     }
 

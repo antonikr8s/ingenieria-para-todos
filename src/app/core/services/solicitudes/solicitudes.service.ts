@@ -2,14 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import {
   Firestore,
   collection,
-  addDoc,
   query,
   where,
   getDocs,
   orderBy,
   limit,
-  Timestamp,
+  serverTimestamp,
   doc,
+  runTransaction,
   updateDoc
 } from '@angular/fire/firestore';
 
@@ -38,6 +38,10 @@ export class SolicitudesService {
 
   // Hacemos referencia a la colección 'peticiones' en Firestore
   private peticionesRef = collection(this.firestore, 'peticiones');
+
+  private limiteRef(uid: string) {
+    return doc(this.firestore, 'limitesSolicitudes', uid);
+  }
 
   /**
    * 1. Verifica si el estudiante puede enviar un nuevo ejercicio (Regla de 14 días)
@@ -79,12 +83,37 @@ export class SolicitudesService {
    * 2. Crea una nueva solicitud en Firestore
    */
   async crearSolicitud(solicitud: Partial<Solicitud>) {
-    return addDoc(this.peticionesRef, {
-      ...solicitud,
-      fecha_creacion: Timestamp.fromDate(new Date()),
-      estado: 'Pendiente',
-      vistoPorEstudiante: true
+    const uid = solicitud.uid_estudiante;
+    if (!uid) throw new Error('Falta la identidad del estudiante.');
+
+    const solicitudRef = doc(this.peticionesRef);
+    const limiteRef = this.limiteRef(uid);
+    const ahora = Date.now();
+    const esperaMs = 14 * 24 * 60 * 60 * 1000;
+
+    await runTransaction(this.firestore, async transaction => {
+      const limiteSnap = await transaction.get(limiteRef);
+      const ultimaSolicitud = limiteSnap.data()?.['ultimaSolicitud']?.toDate?.() as Date | undefined;
+      if (ultimaSolicitud && ahora < ultimaSolicitud.getTime() + esperaMs) {
+        const fechaDisponible = new Date(ultimaSolicitud.getTime() + esperaMs);
+        const error = new Error('REQUEST_COOLDOWN');
+        (error as Error & { fechaDisponible?: Date }).fechaDisponible = fechaDisponible;
+        throw error;
+      }
+
+      transaction.set(solicitudRef, {
+        ...solicitud,
+        fecha_creacion: serverTimestamp(),
+        estado: 'Pendiente',
+        vistoPorEstudiante: true
+      });
+      transaction.set(limiteRef, {
+        uid_estudiante: uid,
+        ultimaSolicitud: serverTimestamp(),
+        solicitudId: solicitudRef.id
+      });
     });
+    return solicitudRef;
   }
 
   /**
@@ -140,7 +169,7 @@ export class SolicitudesService {
       respuestaImagenUrl: respuestaImagenUrl ?? '',
       estado: 'Respondida',
       vistoPorEstudiante: false,
-      fecha_respuesta: Timestamp.fromDate(new Date())
+      fecha_respuesta: serverTimestamp()
     });
   }
 
