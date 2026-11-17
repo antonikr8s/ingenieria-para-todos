@@ -1,7 +1,7 @@
-<section class="py-12 px-4 max-w-3xl mx-auto w-full">
+<section class="py-8 sm:py-12 px-3 sm:px-4 max-w-3xl mx-auto w-full min-w-0">
 
   <div class="mb-8 text-center">
-    <h1 class="text-3xl font-extrabold text-blue-600 tracking-tight">
+    <h1 class="text-2xl sm:text-3xl font-extrabold text-blue-600 tracking-tight">
       Sugerir un Ejercicio
     </h1>
 
@@ -32,7 +32,7 @@
 
   <div class="card bg-white shadow-md border border-stone-200">
 
-    <div class="card-body p-6 md:p-8">
+    <div class="card-body p-4 sm:p-6 md:p-8 min-w-0">
 
 
       @if (verificandoDisponibilidad()) {
@@ -91,7 +91,7 @@
 
         <!-- Nombre y correo -->
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 min-w-0">
 
 
           <div class="form-control">
@@ -244,7 +244,7 @@
 
 
           <input type="file" accept="image/png, image/jpeg, image/jpg" (change)="onFileSelected($event)"
-            class="file-input file-input-bordered w-full max-w-xs" [class.border-red-400]="errorFoto()">
+            class="file-input file-input-bordered w-full max-w-full sm:max-w-xs" [class.border-red-400]="errorFoto()">
 
 
           <p class="text-xs text-gray-500 mt-1">
@@ -278,7 +278,7 @@
         <div class="form-control mt-6">
 
 
-          <button type="submit" class="btn bg-blue-600 hover:bg-blue-700 text-white border-none shadow-md"
+          <button type="submit" class="btn w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white border-none shadow-md"
             [disabled]="enviando()">
 
 

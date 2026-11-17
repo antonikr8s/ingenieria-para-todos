@@ -48,10 +48,13 @@ export class Auth {
     );
   }
 
-  logout() {
-    signOut(this.firebaseAuth).then(() => {
-      this.router.navigate(['/']);
-    });
+  async logout() {
+    await signOut(this.firebaseAuth);
+    await this.router.navigate(['/login']);
+  }
+
+  async logoutToLogin() {
+    return this.logout();
   }
 
   loginWithGoogle() {

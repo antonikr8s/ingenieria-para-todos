@@ -7,6 +7,9 @@ import { NotificacionesService } from '../../core/services/notificaciones/notifi
   selector: 'app-header',
   imports: [RouterLink, RouterLinkActive],
   templateUrl: './header.html',
+  // El host es el elemento fijo: así el header sigue pegado arriba al hacer
+  // scroll y el menú móvil se posiciona justo debajo de la barra.
+  host: { class: 'block sticky top-0 z-50' },
 })
 export class Header {
   auth = inject(Auth);
