@@ -100,10 +100,10 @@
       </div>
 
       @if (recoverySent()) {
-        <div class="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-blue-50 text-blue-700" aria-hidden="true">
-          <svg class="h-10 w-10" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="12" width="38" height="28" rx="3"/><path d="m6 15 18 14 18-14"/><path d="m34 34 4 4 7-8" stroke="white" stroke-width="5"/><path d="m34 34 4 4 7-8"/></svg>
+        <div class="mx-auto mb-6 flex h-28 w-28 items-center justify-center rounded-full bg-blue-50 text-blue-700" aria-hidden="true">
+          <svg class="h-14 w-14" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="12" width="38" height="28" rx="3"/><path d="m6 15 18 14 18-14"/><path d="m34 34 4 4 7-8" stroke="white" stroke-width="5"/><path d="m34 34 4 4 7-8"/></svg>
         </div>
-        <p role="status" class="mb-5 text-stone-600">Si el correo está registrado, te enviaremos un enlace para crear una nueva contraseña. Revisa también spam en <strong class="break-all font-semibold text-stone-900">{{ recoveryForm.controls.email.value }}</strong>.</p>
+        <p role="status" class="mx-auto mb-6 max-w-md text-center text-stone-600 leading-relaxed">Si el correo está registrado, te enviaremos un enlace para crear una nueva contraseña. Revisa también spam en <strong class="break-all font-semibold text-stone-900">{{ recoveryForm.controls.email.value }}</strong>.</p>
         <button type="button" class="w-full cursor-pointer rounded-full bg-[#17152b] p-3 font-semibold text-white transition-colors hover:bg-[#27243d]" (click)="cerrarRecuperacion()">Aceptar</button>
       } @else {
         <p class="mb-4 text-stone-600">Escribe tu correo y te enviaremos un enlace para crear una nueva contraseña.</p>

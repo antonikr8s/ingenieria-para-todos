@@ -52,8 +52,10 @@ export class VerificarCorreoPage implements OnInit, OnDestroy {
       if (typeof window !== 'undefined') window.localStorage.setItem(this.timerKey, String(deadline));
       this.startCountdown(deadline);
       this.message.set('Te enviamos otro enlace. Revisa también la carpeta de spam.');
-    } catch {
-      this.message.set('No se pudo reenviar el correo. Inténtalo de nuevo más tarde.');
+    } catch (error: any) {
+      this.message.set(error?.code === 'auth/too-many-requests'
+        ? 'Espera un minuto antes de pedir otro correo.'
+        : 'No se pudo reenviar el correo. Inténtalo de nuevo más tarde.');
     } finally {
       this.busy.set(false);
     }

@@ -106,6 +106,8 @@ export class LoginPage {
       console.error('Error enviando recuperación de contraseña:', error);
       this.recoveryError.set(error?.code === 'auth/unauthorized-continue-uri' || error?.code === 'auth/invalid-continue-uri'
         ? 'No se pudo completar la recuperación desde este dominio. Inténtalo más tarde.'
+        : error?.code === 'auth/too-many-requests'
+        ? 'Espera un minuto antes de pedir otro correo.'
         : 'No se pudo enviar el enlace. Revisa el correo e inténtalo de nuevo más tarde.');
     } finally {
       this.recoveryLoading.set(false);
