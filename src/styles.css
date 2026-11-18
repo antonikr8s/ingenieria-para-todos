@@ -13,6 +13,19 @@ input[type="password"]::-ms-clear {
   display: none;
 }
 
+/* Campos de solo lectura (datos de la cuenta): gris, sin foco ni cursor de texto. */
+.input.campo-bloqueado,
+.input.campo-bloqueado:focus,
+.input.campo-bloqueado:focus-within {
+  background-color: #e7e5e4; /* stone-200 */
+  border-color: #d6d3d1;     /* stone-300 */
+  color: #57534e;            /* stone-600 */
+  cursor: not-allowed;
+  outline: none;
+  box-shadow: none;
+  user-select: none;
+}
+
 input[type="password"]::-webkit-credentials-auto-fill-button {
   display: none !important;
 }

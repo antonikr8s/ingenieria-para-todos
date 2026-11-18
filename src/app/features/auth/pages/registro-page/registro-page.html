@@ -15,7 +15,7 @@
       <div>
         <label for="register-password" class="block font-medium">Contraseña</label>
         <div class="relative mt-1 rounded-lg border border-stone-300 transition-colors hover:border-stone-700 focus-within:border-stone-900 focus-within:ring-1 focus-within:ring-stone-900" [class.border-red-600]="submitted() && form.controls.password.invalid">
-          <input id="register-password" [type]="showPassword() ? 'text' : 'password'" formControlName="password" autocomplete="new-password" (focus)="passwordFocused.set(true)" (blur)="passwordFocused.set(false)" (paste)="blockClipboard($event)" (copy)="blockClipboard($event)" (cut)="blockClipboard($event)" class="w-full rounded-lg border-0 bg-transparent p-3 pr-24 outline-none focus:ring-0" />
+          <input id="register-password" [type]="showPassword() ? 'text' : 'password'" formControlName="password" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore data-form-type="other" spellcheck="false" (focus)="passwordFocused.set(true)" (blur)="passwordFocused.set(false)" (paste)="blockClipboard($event)" (copy)="blockClipboard($event)" (cut)="blockClipboard($event)" class="w-full rounded-lg border-0 bg-transparent p-3 pr-24 outline-none focus:ring-0" />
           <button type="button" (focus)="passwordFocused.set(true)" class="absolute inset-y-1 right-1 rounded-full border-0 bg-transparent px-3 text-sm text-stone-700 transition-colors hover:bg-stone-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-stone-900" (click)="showPassword.set(!showPassword())">{{ showPassword() ? 'Ocultar' : 'Mostrar' }}</button>
         </div>
         @if (passwordFocused()) { <ul class="mt-3 grid grid-cols-1 gap-1 text-sm sm:grid-cols-2" aria-label="Requisitos de contraseña">
@@ -34,7 +34,7 @@
       <div>
         <label for="register-confirm" class="block font-medium">Confirmar contraseña</label>
         <div class="relative mt-1 rounded-lg border border-stone-300 transition-colors hover:border-stone-700 focus-within:border-stone-900 focus-within:ring-1 focus-within:ring-stone-900" [class.border-red-600]="form.controls.confirmPassword.value && form.hasError('passwordMismatch')">
-          <input id="register-confirm" [type]="showConfirm() ? 'text' : 'password'" formControlName="confirmPassword" autocomplete="new-password" (paste)="blockClipboard($event)" (copy)="blockClipboard($event)" (cut)="blockClipboard($event)" class="w-full rounded-lg border-0 bg-transparent p-3 pr-24 outline-none focus:ring-0" />
+          <input id="register-confirm" [type]="showConfirm() ? 'text' : 'password'" formControlName="confirmPassword" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore data-form-type="other" spellcheck="false" (paste)="blockClipboard($event)" (copy)="blockClipboard($event)" (cut)="blockClipboard($event)" class="w-full rounded-lg border-0 bg-transparent p-3 pr-24 outline-none focus:ring-0" />
           <button type="button" class="absolute inset-y-1 right-1 rounded-full border-0 bg-transparent px-3 text-sm text-blue-700 transition-colors hover:bg-stone-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-700" (click)="showConfirm.set(!showConfirm())">{{ showConfirm() ? 'Ocultar' : 'Mostrar' }}</button>
         </div>
         @if (form.controls.confirmPassword.value) {

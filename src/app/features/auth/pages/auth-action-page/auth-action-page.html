@@ -1,4 +1,4 @@
-<main class="flex min-h-screen items-center justify-center bg-stone-50 px-4 py-10">
+<main class="flex min-h-[calc(100dvh-4rem)] items-start justify-center bg-stone-50 px-4 pb-10 pt-8 sm:pt-12">
   <section class="w-full max-w-lg rounded-3xl border border-stone-200 bg-white p-7 shadow-sm sm:p-9">
     <header class="mb-7 text-center">
       <img src="/assets/logo-IPT.jpeg" alt="Logo de Ingeniería para Todos" class="mx-auto mb-4 h-20 w-20 rounded-2xl object-cover" />
@@ -38,7 +38,7 @@
         <div>
           <label for="new-password" class="mb-1 block font-medium text-stone-800">Nueva contraseña</label>
           <div class="relative rounded-xl border border-stone-300 transition-colors hover:border-stone-700 focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-200" [class.border-red-600]="form.controls.password.touched && form.controls.password.invalid">
-            <input id="new-password" [type]="showPassword() ? 'text' : 'password'" formControlName="password" autocomplete="new-password" (focus)="passwordFocused.set(true)" (blur)="passwordFocused.set(false)" (paste)="blockClipboard($event)" (copy)="blockClipboard($event)" (cut)="blockClipboard($event)" class="w-full rounded-xl border-0 bg-transparent p-3 pr-24 outline-none focus:ring-0" />
+            <input id="new-password" [type]="showPassword() ? 'text' : 'password'" formControlName="password" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore data-form-type="other" spellcheck="false" (focus)="passwordFocused.set(true)" (blur)="passwordFocused.set(false)" (paste)="blockClipboard($event)" (copy)="blockClipboard($event)" (cut)="blockClipboard($event)" class="w-full rounded-xl border-0 bg-transparent p-3 pr-24 outline-none focus:ring-0" />
             <button type="button" (focus)="passwordFocused.set(true)" (click)="showPassword.set(!showPassword())" class="absolute inset-y-1 right-1 rounded-full px-3 text-sm text-stone-700 transition-colors hover:bg-stone-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600">{{ showPassword() ? 'Ocultar' : 'Mostrar' }}</button>
           </div>
           @if (passwordFocused()) {
@@ -63,7 +63,7 @@
         <div>
           <label for="confirm-new-password" class="mb-1 block font-medium text-stone-800">Confirmar contraseña</label>
           <div class="relative rounded-xl border border-stone-300 transition-colors hover:border-stone-700 focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-200" [class.border-red-600]="form.controls.confirmPassword.touched && form.hasError('passwordMismatch')">
-            <input id="confirm-new-password" [type]="showConfirm() ? 'text' : 'password'" formControlName="confirmPassword" autocomplete="new-password" (paste)="blockClipboard($event)" (copy)="blockClipboard($event)" (cut)="blockClipboard($event)" class="w-full rounded-xl border-0 bg-transparent p-3 pr-24 outline-none focus:ring-0" />
+            <input id="confirm-new-password" [type]="showConfirm() ? 'text' : 'password'" formControlName="confirmPassword" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore data-form-type="other" spellcheck="false" (paste)="blockClipboard($event)" (copy)="blockClipboard($event)" (cut)="blockClipboard($event)" class="w-full rounded-xl border-0 bg-transparent p-3 pr-24 outline-none focus:ring-0" />
             <button type="button" (click)="showConfirm.set(!showConfirm())" class="absolute inset-y-1 right-1 rounded-full px-3 text-sm text-stone-700 transition-colors hover:bg-stone-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600">{{ showConfirm() ? 'Ocultar' : 'Mostrar' }}</button>
           </div>
           @if (form.controls.confirmPassword.touched && form.hasError('passwordMismatch')) {

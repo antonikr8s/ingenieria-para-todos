@@ -104,6 +104,9 @@
 
 
             <input type="text" formControlName="nombre" placeholder="Ej. Carlos Gordillo"
+              [readOnly]="!!nombreCuenta()" [attr.aria-readonly]="!!nombreCuenta()"
+              [class.campo-bloqueado]="!!nombreCuenta()" [attr.tabindex]="nombreCuenta() ? -1 : null"
+              title="Es el nombre de tu cuenta"
               class="input input-bordered bg-stone-50 w-full">
 
 
@@ -131,7 +134,8 @@
 
 
             <input type="email" formControlName="correo" placeholder="correo@ejemplo.com"
-              class="input input-bordered bg-stone-50 w-full">
+              readonly aria-readonly="true" tabindex="-1" title="Es el correo de tu cuenta"
+              class="input input-bordered w-full campo-bloqueado">
 
 
             @if(correo.invalid && correo.touched){
