@@ -13,18 +13,44 @@
 //   APP_URL                   opcional; por defecto https://ingenieria-para-todos.vercel.app
 
 import { createHash } from 'node:crypto';
-import { cert, getApps, initializeApp } from 'firebase-admin/app';
-import { getAuth } from 'firebase-admin/auth';
-import { FieldValue, getFirestore } from 'firebase-admin/firestore';
-import nodemailer from 'nodemailer';
 import { correoRestablecer, correoVerificar, enlaceIPT } from './_lib/plantillas.mjs';
+
+// Librerías cargadas al usarse: si alguna falla, el GET de diagnóstico sigue respondiendo.
+let libs;
+async function cargarLibs() {
+  if (!libs) {
+    const [app, authMod, fs, mailer] = await Promise.all([
+      import('firebase-admin/app'),
+      import('firebase-admin/auth'),
+      import('firebase-admin/firestore'),
+      import('nodemailer'),
+    ]);
+    libs = { ...app, getAuth: authMod.getAuth, FieldValue: fs.FieldValue, getFirestore: fs.getFirestore, nodemailer: mailer.default };
+  }
+  return libs;
+}
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const APP_URL = process.env.APP_URL || 'https://ingenieria-para-todos.vercel.app';
 const ESPERA_MS = 60_000; // un correo por minuto por dirección
 const MAX_POR_IP_HORA = 10;
 
-function admin() {
+/** Qué falta en la configuración (nunca devuelve valores, solo nombres). */
+function configuracionFaltante() {
+  const faltan = ['FIREBASE_SERVICE_ACCOUNT', 'GMAIL_USER', 'GMAIL_APP_PASSWORD'].filter((k) => !process.env[k]?.trim());
+  if (!faltan.includes('FIREBASE_SERVICE_ACCOUNT')) {
+    try {
+      const sa = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+      if (!sa.private_key || !sa.client_email) faltan.push('FIREBASE_SERVICE_ACCOUNT (JSON sin private_key o client_email)');
+    } catch {
+      faltan.push('FIREBASE_SERVICE_ACCOUNT (no es un JSON válido)');
+    }
+  }
+  return faltan;
+}
+
+async function admin() {
+  const { getApps, initializeApp, cert, getAuth, getFirestore } = await cargarLibs();
   if (!getApps().length) {
     initializeApp({ credential: cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)) });
   }
@@ -42,6 +68,7 @@ const hash = (v) => createHash('sha256').update(v).digest('hex');
 
 /** Reserva el envío; lanza 429 si se pidió hace menos de un minuto o la IP abusa. */
 async function reservar(db, email, ip) {
+  const { FieldValue } = await cargarLibs();
   const correoRef = db.doc(`mailThrottle/${hash(email)}`);
   const ipRef = db.doc(`mailThrottle/ip-${hash(ip)}-${new Date().toISOString().slice(0, 13)}`);
   await db.runTransaction(async (tx) => {
@@ -56,6 +83,7 @@ async function reservar(db, email, ip) {
 }
 
 async function enviar(to, mail) {
+  const { nodemailer } = await cargarLibs();
   const user = process.env.GMAIL_USER;
   await nodemailer
     .createTransport({ service: 'gmail', auth: { user, pass: process.env.GMAIL_APP_PASSWORD } })
@@ -63,14 +91,32 @@ async function enviar(to, mail) {
 }
 
 export default async function handler(req, res) {
+  // GET: diagnóstico sin datos sensibles (solo dice qué configuración falta).
+  if (req.method === 'GET') {
+    const faltan = configuracionFaltante();
+    let librerias = 'ok';
+    try { await cargarLibs(); } catch (e) { librerias = String(e).slice(0, 200); }
+    return res.status(200).json({ ok: faltan.length === 0 && librerias === 'ok', faltan, librerias });
+  }
   if (req.method !== 'POST') return res.status(405).json({ error: 'method' });
 
-  const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {};
+  const faltan = configuracionFaltante();
+  if (faltan.length) {
+    console.error('auth-email sin configurar', { faltan });
+    return res.status(503).json({ error: 'not-configured' });
+  }
+
+  let body;
+  try {
+    body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {};
+  } catch {
+    return res.status(400).json({ error: 'invalid-body' });
+  }
   const ip = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'desconocida';
-  const { auth, db } = admin();
   let throttleRef;
 
   try {
+    const { auth, db } = await admin();
     if (body.type === 'reset') {
       const email = String(body.email ?? '').trim().toLowerCase();
       if (!EMAIL_RE.test(email) || email.length > 254) return res.status(400).json({ error: 'invalid-email' });
