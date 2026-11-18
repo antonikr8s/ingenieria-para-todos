@@ -34,7 +34,11 @@ export class LoginPage {
   constructor() {
     this.passwordUpdated.set(this.route.snapshot.queryParamMap.get('passwordReset') === 'success');
     if (typeof window !== 'undefined') {
-      this.rememberMe.set(window.localStorage.getItem('ipt-remember-me') === 'true');
+      const remember = window.localStorage.getItem('ipt-remember-me') === 'true';
+      this.rememberMe.set(remember);
+      const rememberedEmail = remember ? window.localStorage.getItem('ipt-last-login-email') : null;
+      if (rememberedEmail) this.form.controls.email.setValue(rememberedEmail);
+      if (!remember) window.localStorage.removeItem('ipt-last-login-email');
     }
   }
 
@@ -61,6 +65,13 @@ export class LoginPage {
       const { email, password } = this.form.getRawValue();
       await this.auth.setRememberMe(this.rememberMe());
       const credential = await this.auth.loginWithEmail(email.trim(), password);
+      if (typeof window !== 'undefined') {
+        if (this.rememberMe()) {
+          window.localStorage.setItem('ipt-last-login-email', email.trim());
+        } else {
+          window.localStorage.removeItem('ipt-last-login-email');
+        }
+      }
       await this.router.navigate([credential.user.emailVerified ? '/' : '/verificar-correo']);
     } catch {
       this.errorMessage.set('No se pudo iniciar sesión. Revisa el correo y la contraseña.');
@@ -95,6 +106,8 @@ export class LoginPage {
       console.error('Error enviando recuperación de contraseña:', error);
       this.recoveryError.set(error?.code === 'auth/unauthorized-continue-uri' || error?.code === 'auth/invalid-continue-uri'
         ? 'No se pudo completar la recuperación desde este dominio. Inténtalo más tarde.'
+        : error?.code === 'auth/too-many-requests'
+        ? 'Espera un minuto antes de pedir otro correo.'
         : 'No se pudo enviar el enlace. Revisa el correo e inténtalo de nuevo más tarde.');
     } finally {
       this.recoveryLoading.set(false);
@@ -108,6 +121,7 @@ export class LoginPage {
     this.rememberMe.set(remember);
     if (typeof window !== 'undefined') {
       window.localStorage.setItem('ipt-remember-me', String(remember));
+      if (!remember) window.localStorage.removeItem('ipt-last-login-email');
     }
   }
 

@@ -1,19 +1,52 @@
-<section class="min-h-[calc(100vh-140px)] bg-stone-50 px-4 py-16">
-  <div class="mx-auto max-w-lg rounded-2xl border border-stone-200 bg-white p-8 text-center shadow-sm">
-    <div class="mb-4 text-4xl" aria-hidden="true">✉</div>
-    <h1 class="text-3xl font-bold text-stone-900">Revisa tu correo</h1>
+<div class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 px-3 py-4 sm:px-4 sm:py-8">
+  <section
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="verification-title"
+    class="my-auto max-h-[calc(100vh-2rem)] max-h-[calc(100dvh-2rem)] w-full max-w-3xl overflow-y-auto rounded-2xl sm:rounded-[2rem] bg-white p-5 sm:px-8 sm:py-8 text-center shadow-2xl"
+  >
+    <div class="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-blue-50 text-blue-700" aria-hidden="true">
+      <svg class="h-10 w-10" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="12" width="38" height="28" rx="3"/><path d="m6 15 18 14 18-14"/><circle cx="37" cy="10" r="5" fill="currentColor" stroke="white" stroke-width="2"/></svg>
+    </div>
+    <h1 id="verification-title" class="text-2xl sm:text-3xl font-normal text-stone-900">Revisa tu correo</h1>
+
     @if (user()) {
-      <p class="mt-4">Te enviamos un enlace de verificación a <strong>{{ user()?.email }}</strong>. Ábrelo y luego vuelve aquí.</p>
-      <p class="mt-2 text-sm text-stone-600">Si no te llega, revisa la carpeta de spam.</p>
-      <button type="button" (click)="resend()" [disabled]="remaining() > 0 || busy()" class="mt-6 w-full rounded-lg border border-blue-700 p-3 font-medium text-blue-800 disabled:border-stone-300 disabled:text-stone-400">
-        {{ remaining() > 0 ? 'Reenviar en ' + remaining() + ' s' : 'Reenviar correo de verificación' }}
+      <p class="mt-5 text-base leading-7 text-stone-800">
+        Te enviamos un enlace de verificación a <strong class="break-all">{{ user()?.email }}</strong>. Ábrelo y luego inicia sesión.
+      </p>
+      <p class="mt-2 text-base text-stone-600">Si no te llega, revisa la carpeta de spam o pide otro correo.</p>
+
+      <button
+        type="button"
+        (click)="resend()"
+        [disabled]="remaining() > 0 || busy()"
+        class="mt-5 w-full cursor-pointer rounded-2xl border border-stone-800 px-5 py-3 text-base font-normal text-stone-800 transition-colors hover:bg-stone-100 disabled:cursor-default disabled:border-stone-300 disabled:text-stone-400 disabled:hover:bg-white"
+      >
+        @if (busy()) {
+          Enviando correo…
+        } @else if (remaining() > 0) {
+          Reenviar en {{ remaining() }} s
+        } @else {
+          ✉&nbsp; Reenviar correo
+        }
       </button>
-      <button type="button" (click)="check()" [disabled]="busy()" class="mt-3 w-full rounded-lg bg-blue-600 p-3 font-semibold text-white disabled:opacity-60">Ya verifiqué mi correo</button>
-      <button type="button" (click)="changeAccount()" class="mt-4 text-sm text-blue-700 underline">Usar otra cuenta</button>
+
+      <button
+        type="button"
+        (click)="accept()"
+        class="mt-3 w-full cursor-pointer rounded-2xl bg-[#171428] px-5 py-3 text-base font-medium text-white transition-colors hover:bg-[#29243d]"
+      >
+        Aceptar
+      </button>
+
+      @if (message()) {
+        <p role="status" class="mt-4 text-sm text-blue-700">{{ message() }}</p>
+      }
     } @else {
-      <p class="mt-4">Inicia sesión para verificar tu correo.</p>
-      <a routerLink="/login" class="mt-4 inline-block text-blue-700 underline">Iniciar sesión</a>
+      <p class="mt-5 text-base text-stone-700">Inicia sesión para continuar.</p>
+      <button type="button" (click)="accept()" class="mt-7 w-full cursor-pointer rounded-2xl bg-[#171428] px-5 py-4 text-lg font-semibold text-white hover:bg-[#29243d]">
+        Aceptar
+      </button>
     }
-    @if (message()) { <p role="status" class="mt-4 text-sm">{{ message() }}</p> }
-  </div>
-</section>
+  </section>
+</div>

@@ -48,10 +48,13 @@ export class Auth {
     );
   }
 
-  logout() {
-    signOut(this.firebaseAuth).then(() => {
-      this.router.navigate(['/']);
-    });
+  async logout() {
+    await signOut(this.firebaseAuth);
+    await this.router.navigate(['/login']);
+  }
+
+  async logoutToLogin() {
+    return this.logout();
   }
 
   loginWithGoogle() {
@@ -73,14 +76,54 @@ export class Auth {
   async registerStudent(name: string, email: string, password: string) {
     const credential = await createUserWithEmailAndPassword(this.firebaseAuth, email, password);
     await updateProfile(credential.user, { displayName: name });
-    await sendEmailVerification(credential.user);
+    await this.sendVerification(credential.user);
     return credential.user;
   }
 
-  resendVerification() {
+  async resendVerification() {
     const user = this.firebaseAuth.currentUser;
     if (!user) throw new Error('No hay una sesión activa.');
-    return sendEmailVerification(user);
+    await this.sendVerification(user);
+  }
+
+  /** Correo con diseño de IPT (/api/auth-email); si falla, el estándar de Firebase. */
+  private async sendVerification(user: User) {
+    const token = await user.getIdToken();
+    if (await this.sendBrandedEmail({ type: 'verify' }, token)) return;
+    this.firebaseAuth.languageCode = 'es';
+    await sendEmailVerification(user);
+  }
+
+  /**
+   * Llama a la función de Vercel. Devuelve true si el correo con diseño salió.
+   * Lanza solo los errores que el usuario debe ver (esperar un minuto, correo inválido);
+   * cualquier otro fallo devuelve false para usar el correo de Firebase.
+   */
+  private async sendBrandedEmail(body: object, idToken?: string): Promise<boolean> {
+    try {
+      const response = await fetch('/api/auth-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(idToken ? { Authorization: `Bearer ${idToken}` } : {}),
+        },
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(15000),
+      });
+      if (response.status === 429) {
+        throw Object.assign(new Error('Espera un minuto antes de pedir otro correo.'), { code: 'auth/too-many-requests' });
+      }
+      if (response.status === 400) {
+        throw Object.assign(new Error('Escribe un correo válido.'), { code: 'auth/invalid-email' });
+      }
+      if (!response.ok) return false;
+      const data = await response.json().catch(() => null);
+      return data?.sent === true || data?.alreadyVerified === true;
+    } catch (error: any) {
+      if (error?.code) throw error;
+      console.warn('Correo con diseño no disponible; se usa el de Firebase.', error);
+      return false;
+    }
   }
 
   async refreshVerification(): Promise<boolean> {
@@ -91,7 +134,8 @@ export class Auth {
     return user.emailVerified;
   }
 
-  resetPassword(email: string) {
+  async resetPassword(email: string) {
+    if (await this.sendBrandedEmail({ type: 'reset', email })) return;
     this.firebaseAuth.languageCode = 'es';
     return sendPasswordResetEmail(this.firebaseAuth, email, {
       url: `${window.location.origin}/login?passwordReset=success`,

@@ -1,8 +1,36 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Auth } from '../../../../core/services/auth/auth';
 import { passwordMatchValidator } from '../../../validators/password-match.validator';
+
+const NAME_PARTICLES = new Set(['de', 'del', 'la', 'las', 'los', 'y']);
+
+function validateStudentName(control: AbstractControl): ValidationErrors | null {
+  const value = String(control.value ?? '').trim();
+  if (!value) return { required: true };
+  if (/[^\p{L}\s]/u.test(value)) return { nameCharacters: true };
+
+  const words = value.split(/\s+/);
+  if (words.length < 2) return { nameParts: true };
+  if (words.length > 4) return { tooManyNameParts: true };
+
+  const nameWords = words.filter(word => !NAME_PARTICLES.has(word.toLocaleLowerCase('es')));
+  if (nameWords.length < 2) return { nameParts: true };
+  if (nameWords.some(word => [...word].length < 4)) return { shortNamePart: true };
+  return null;
+}
+
+function formatName(value: string): string {
+  return value
+    .replace(/[^\p{L}\s]/gu, '')
+    .replace(/\s{2,}/g, ' ')
+    .split(' ')
+    .map(word => word
+      ? word.charAt(0).toLocaleUpperCase('es') + word.slice(1).toLocaleLowerCase('es')
+      : '')
+    .join(' ');
+}
 
 @Component({
   selector: 'app-registro-page',
@@ -21,7 +49,7 @@ export class RegistroPage {
   errorMessage = signal('');
 
   form = this.fb.nonNullable.group({
-    name: ['', [Validators.required, Validators.minLength(2)]],
+    name: ['', [validateStudentName]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(8),
       Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9\s]).+$/)]],
@@ -42,6 +70,26 @@ export class RegistroPage {
 
   blockClipboard(event: ClipboardEvent) { event.preventDefault(); }
 
+  formatNameInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const cursor = input.selectionStart ?? input.value.length;
+    const formattedPrefix = formatName(input.value.slice(0, cursor));
+    const formattedValue = formatName(input.value);
+    input.value = formattedValue;
+    this.form.controls.name.setValue(formattedValue);
+    input.setSelectionRange(formattedPrefix.length, formattedPrefix.length);
+  }
+
+  nameError(): string {
+    const errors = this.form.controls.name.errors;
+    if (!errors) return '';
+    if (errors['required']) return 'Escribe tu nombre y al menos un apellido.';
+    if (errors['nameCharacters']) return 'Usa solo letras y espacios; no se permiten números ni signos.';
+    if (errors['tooManyNameParts']) return 'Escribe como máximo cuatro palabras.';
+    if (errors['shortNamePart']) return 'Cada nombre o apellido debe tener al menos cuatro letras.';
+    return 'Escribe al menos un nombre y un apellido.';
+  }
+
   async submit() {
     this.submitted.set(true);
     if (this.form.invalid || this.loading()) return;
@@ -49,7 +97,7 @@ export class RegistroPage {
     this.errorMessage.set('');
     const { name, email, password } = this.form.getRawValue();
     try {
-      await this.auth.registerStudent(name.trim(), email.trim(), password);
+      await this.auth.registerStudent(formatName(name).trim(), email.trim(), password);
       await this.router.navigate(['/verificar-correo']);
     } catch (error: any) {
       this.errorMessage.set(error?.code === 'auth/email-already-in-use'
