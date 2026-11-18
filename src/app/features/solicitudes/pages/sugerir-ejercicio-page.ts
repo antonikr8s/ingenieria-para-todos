@@ -86,6 +86,8 @@ export class SugerirEjercicioPage implements OnInit {
 
   // Nombre del archivo seleccionado
   imagenNombre = signal('');
+  /** Nombre de la cuenta; si existe, el campo Nombre queda bloqueado. */
+  nombreCuenta = signal('');
 
 
   async ngOnInit() {
@@ -93,9 +95,12 @@ export class SugerirEjercicioPage implements OnInit {
       const user = this.authService.currentUser();
 
       if (user?.uid) {
-        if (user.email) {
-          this.sugerenciaForm.patchValue({ correo: user.email });
-        }
+        // Nombre y correo vienen de la cuenta verificada: se muestran bloqueados.
+        this.nombreCuenta.set(user.displayName?.trim() ?? '');
+        this.sugerenciaForm.patchValue({
+          correo: user.email ?? '',
+          ...(this.nombreCuenta() ? { nombre: this.nombreCuenta() } : {}),
+        });
 
         const disponibilidad = await this.solicitudesService.verificarDisponibilidad(user.uid);
         this.puedeSugerir.set(disponibilidad.puede);
@@ -218,7 +223,8 @@ export class SugerirEjercicioPage implements OnInit {
       // Limpieza del formulario
       this.sugerenciaForm.reset({
         capitulo: '1',
-        correo: user.email || ''
+        correo: user.email || '',
+        nombre: this.nombreCuenta()
       });
 
       this.archivoSeleccionado = null;
