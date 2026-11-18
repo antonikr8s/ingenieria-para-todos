@@ -1,7 +1,14 @@
 // Plantillas de correo de Ingeniería para Todos (HTML + texto plano).
 // Funciones puras: se prueban sin red ni Firebase.
 
-const LOGO = 'https://ingenieria-para-todos.vercel.app/assets/logo-IPT.jpeg';
+import { LOGO_JPEG_BASE64 } from './logo-correo.mjs';
+
+// Logo incrustado en el correo (no enlazado): Gmail lo muestra aunque bloquee
+// imágenes externas (por ejemplo, en Spam) y el correo no pide nada a otro dominio.
+const LOGO_CID = 'logo@ipt';
+const ADJUNTOS = [
+  { filename: 'logo-ipt.jpg', content: LOGO_JPEG_BASE64, encoding: 'base64', contentType: 'image/jpeg', cid: LOGO_CID },
+];
 
 export function escapar(texto) {
   return String(texto ?? '')
@@ -20,7 +27,7 @@ function marco({ titulo, parrafos, boton, enlace, pie }) {
 <div style="background:#f5f7fb;padding:24px 12px;font-family:Arial,Helvetica,sans-serif;color:#172033">
   <div style="max-width:520px;margin:auto;background:#ffffff;border:1px solid #dbe2ec;border-top:5px solid #155dfc;border-radius:12px;padding:28px">
     <div style="text-align:center">
-      <img src="${LOGO}" alt="Ingeniería para Todos" width="72" height="72" style="border-radius:12px">
+      <img src="cid:${LOGO_CID}" alt="Ingeniería para Todos" width="72" height="72" style="border-radius:12px">
       <p style="margin:12px 0 0;font-weight:bold;letter-spacing:1px">INGENIERÍA <span style="color:#155dfc">PARA TODOS</span></p>
       <h2 style="margin:20px 0 8px;font-size:22px">${escapar(titulo)}</h2>
     </div>
@@ -54,6 +61,7 @@ export function correoRestablecer({ email, nombre, enlace }) {
       pie,
     }),
     text: `${nombre ? `Hola, ${nombre}:` : 'Hola:'}\n\nRecibimos una solicitud para cambiar la contraseña de ${email}.\nAbre este enlace para crear una nueva:\n${enlace}\n\n${pie}\n\nIngeniería para Todos`,
+    attachments: ADJUNTOS,
   };
 }
 
@@ -72,6 +80,7 @@ export function correoVerificar({ email, nombre, enlace }) {
       pie,
     }),
     text: `${nombre ? `Hola, ${nombre}:` : 'Hola:'}\n\nGracias por registrarte. Confirma que ${email} es tu correo abriendo este enlace:\n${enlace}\n\n${pie}\n\nIngeniería para Todos`,
+    attachments: ADJUNTOS,
   };
 }
 
