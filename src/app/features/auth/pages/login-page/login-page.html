@@ -92,20 +92,20 @@
     <button type="button" class="absolute inset-0 cursor-default" aria-label="Cerrar recuperación de contraseña" (click)="cerrarRecuperacion()"></button>
     <section role="dialog" aria-modal="true" aria-labelledby="recovery-title" class="relative z-10 w-full max-w-2xl rounded-t-3xl bg-white px-6 pb-7 pt-5 shadow-2xl sm:rounded-3xl sm:px-8">
       <div class="mx-auto mb-7 h-1.5 w-10 rounded-full bg-stone-700 sm:hidden"></div>
-      <div class="mb-4 flex items-center justify-between gap-4">
-        <h2 id="recovery-title" class="text-2xl font-medium text-stone-900">
-          {{ recoverySent() ? 'Revisa tu correo' : 'Recuperar contraseña' }}
-        </h2>
-        <button type="button" class="rounded-full p-2 text-2xl leading-none text-stone-600 transition-colors hover:bg-stone-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-stone-900" aria-label="Cerrar" [disabled]="recoveryLoading()" (click)="cerrarRecuperacion()">×</button>
-      </div>
-
       @if (recoverySent()) {
-        <div class="mx-auto mb-6 flex h-28 w-28 items-center justify-center rounded-full bg-blue-50 text-blue-700" aria-hidden="true">
-          <svg class="h-14 w-14" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="12" width="38" height="28" rx="3"/><path d="m6 15 18 14 18-14"/><path d="m34 34 4 4 7-8" stroke="white" stroke-width="5"/><path d="m34 34 4 4 7-8"/></svg>
+        <!-- Mismo formato que el aviso de OnList: icono arriba, título y texto centrados. -->
+        <div class="mx-auto mb-5 mt-2 flex h-20 w-20 items-center justify-center rounded-full bg-blue-50 text-blue-700" aria-hidden="true">
+          <svg class="h-10 w-10" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="12" width="38" height="28" rx="3"/><path d="m6 15 18 14 18-14"/><path d="m34 34 4 4 7-8" stroke="white" stroke-width="5"/><path d="m34 34 4 4 7-8"/></svg>
         </div>
-        <p role="status" class="mx-auto mb-6 max-w-md text-center text-stone-600 leading-relaxed">Si el correo está registrado, te enviaremos un enlace para crear una nueva contraseña. Revisa también spam en <strong class="break-all font-semibold text-stone-900">{{ recoveryForm.controls.email.value }}</strong>.</p>
+        <h2 id="recovery-title" class="mb-4 text-center text-3xl font-medium text-stone-900">Revisa tu correo</h2>
+        <p role="status" class="mx-auto mb-2 max-w-xl text-center text-stone-800 leading-relaxed">Si el correo está registrado, te enviaremos un enlace para crear una nueva contraseña a <span class="break-all">{{ recoveryForm.controls.email.value }}</span>.</p>
+        <p class="mb-6 text-center text-sm text-stone-500">Si no te llega, revisa la carpeta de spam.</p>
         <button type="button" class="w-full cursor-pointer rounded-full bg-[#17152b] p-3 font-semibold text-white transition-colors hover:bg-[#27243d]" (click)="cerrarRecuperacion()">Aceptar</button>
       } @else {
+        <div class="mb-4 flex items-center justify-between gap-4">
+          <h2 id="recovery-title" class="text-2xl font-medium text-stone-900">Recuperar contraseña</h2>
+          <button type="button" class="rounded-full p-2 text-2xl leading-none text-stone-600 transition-colors hover:bg-stone-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-stone-900" aria-label="Cerrar" [disabled]="recoveryLoading()" (click)="cerrarRecuperacion()">×</button>
+        </div>
         <p class="mb-4 text-stone-600">Escribe tu correo y te enviaremos un enlace para crear una nueva contraseña.</p>
         <form [formGroup]="recoveryForm" (ngSubmit)="enviarEnlaceRecuperacion()" class="space-y-4" novalidate>
           <div>
